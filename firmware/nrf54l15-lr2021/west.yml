@@ -1,0 +1,20 @@
+manifest:
+  projects:
+    - name: zephyr
+      url: https://github.com/zephyrproject-rtos/zephyr
+      revision: v4.3.0
+      import: true
+
+    - name: usp
+      path: modules/lib/usp
+      url: https://github.com/superlexicon/usp.git
+      revision: 877ae250bee90f2a3b82844f50ff3a3ff901d6ea  # superlexicon/lost-edge-resuscitation (fork of Lora-net/usp@v1.1.2-feature-202604) — TX fault visibility + TX_DONE host line + CHIP_BUSY retry (used by main.c)
+      submodules: true
+
+    - name: usp_zephyr
+      path: modules/lib/usp_zephyr
+      url: https://github.com/Lora-net/usp_zephyr.git
+      revision: f56567425679d0a60eae36f831c50af76ba97405  # v1.1.2-feature-202604 (unmodified upstream — the fork's radio-irq-kick entry is unused by the current app)
+
+  self:
+    path: application

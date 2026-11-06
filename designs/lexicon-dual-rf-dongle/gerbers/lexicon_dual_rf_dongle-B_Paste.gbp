@@ -1,0 +1,14 @@
+%TF.GenerationSoftware,LexiconEDA,Dual-RF Dongle-Generator,1.0*%
+%TF.Part,Single*%
+%TF.FileFunction,Paste,Bot*%
+G04 Bottom Stencil Solder Paste*
+%FSLAX46Y46*%
+%MOMM*%
+%LPD*%
+%ADD10C,0.150000*%
+%ADD11C,0.230000*%
+%ADD12C,0.400000*%
+%ADD13R,0.800000X0.800000*%
+%ADD14R,5.000000X5.000000*%
+D10*
+M02*

@@ -1,0 +1,17 @@
+build/
+build-*/
+.west/
+zephyr/
+modules/
+tools/
+bootloader/
+sdkconfig
+sdkconfig.old
+*.o
+*.a
+*.elf
+*.pyc
+__pycache__/
+.DS_Store
+*.swp
+*.swo

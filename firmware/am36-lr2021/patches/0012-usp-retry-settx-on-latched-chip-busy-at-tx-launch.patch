@@ -1,0 +1,65 @@
+From 5f3a9c2ee506b7efe76047bdeb4f62dc5b503e26 Mon Sep 17 00:00:00 2001
+From: Mano Thanabalan <mano@superlexicon.dev>
+Date: Sun, 6 Sep 2026 12:36:56 +0800
+Subject: [PATCH] smtc_rac_flrc_burst: retry SetTx on latched CHIP_BUSY at TX
+ launch
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The abort->TX cut-over runs every consensus window: SetTx lands while
+the chip is still leaving RX, the chip latches CHIP_BUSY ('Tx/Rx
+trigger cannot be executed because chip was changing mode') and the
+burst never starts — one dead TX per window per node (bench
+2026-09-06: 30+ 'tx never aired' per node per 7 minutes, votes dying
+every window). Re-issue SetTx up to 3 times, 10ms apart, clearing the
+latched errors between attempts; only a persistent rejection aborts
+the burst to the host's honest-'E' path.
+---
+ smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c | 23 +++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+
+diff --git a/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c b/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c
+index 5be19cb..cb1a7b1 100644
+--- a/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c
++++ b/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c
+@@ -38,6 +38,7 @@
+  */
+ 
+ #include <stdbool.h>
++#include <zephyr/kernel.h>
+ #include <stdint.h>
+ #include <string.h>
+ 
+@@ -646,6 +647,28 @@ static void smtc_rac_flrc_post_tx_callback( rp_status_t status )
+             if( errors != 0 )
+             {
+                 lr20xx_system_clear_errors( rp->radio->ral.context );
++                // RETRYABLE LAUNCH FAULT (SuperLexicon 2026-09-06): a
++                // latched CHIP_BUSY at launch means SetTx landed while
++                // the chip was still leaving RX (the abort->TX cut-over
++                // runs every window) — the burst never started. Re-issue
++                // SetTx a bounded number of times instead of aborting:
++                // each abort cost a full consensus window (the vote-loss
++                // signature — 30+ 'tx never aired' per node per 7 min).
++                if( ( errors & 0x0100 ) != 0 &&
++                    smtc_rac_flrc_tx_fragmented_data.tx_nb_bytes_sent == 0 )
++                {
++                    for( uint8_t attempt = 0; attempt < 3; attempt++ )
++                    {
++                        k_msleep( 10 );
++                        ( void ) lr20xx_system_clear_errors( rp->radio->ral.context );
++                        if( ral_set_tx( &( rp->radio->ral ) ) == RAL_STATUS_OK )
++                        {
++                            // Burst launched — TX_TIMESTAMP IRQs drive
++                            // the byte counter and unlock from here.
++                            return;
++                        }
++                    }
++                }
+                 smtc_rac_abort_radio_submit( rp->radio_task_id );
+                 return;
+             }
+-- 
+2.55.0
+

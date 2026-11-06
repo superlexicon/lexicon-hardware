@@ -1,0 +1,46 @@
+From d9bc686a042a15de84d5971434f21ad7493ce045 Mon Sep 17 00:00:00 2001
+From: Mano Thanabalan <mano.thanabalan@gmail.com>
+Date: Wed, 2 Sep 2026 02:48:34 +0800
+Subject: [PATCH] radio_planner: run the arbiter on the no-task IRQ path
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+A task enqueued while a stale radio_irq_flag was pending skipped its
+inline arbiter (rp_task_enqueue runs the arbiter only when no flag is
+pending). The no-task branch was the only pass that could launch it —
+but it only cleared the flag and slept the radio. An enqueued ASAP task
+was then never launched: ASAP tasks don't arm the planner timer and
+rp_callback early-returns once both flags clear, so the chip slept
+forever while the host believed the radio was armed (RX submit returned
+OK, chip RX counters flat until an MCU reset).
+---
+ smtc_rac_lib/radio_planner/src/radio_planner.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/smtc_rac_lib/radio_planner/src/radio_planner.c b/smtc_rac_lib/radio_planner/src/radio_planner.c
+index 4b8e8d9..48cd248 100644
+--- a/smtc_rac_lib/radio_planner/src/radio_planner.c
++++ b/smtc_rac_lib/radio_planner/src/radio_planner.c
+@@ -589,6 +589,18 @@ void rp_callback( radio_planner_t* rp )
+                 }
+             }
+             SMTC_MODEM_HAL_TRACE_PRINTF( " radio planner it but no more task activated\n" );
++            // A task enqueued while a stale radio_irq_flag was pending
++            // skipped its inline arbiter (rp_task_enqueue runs the arbiter
++            // only when no flag is pending). This branch was the only pass
++            // that could launch it — but it only cleared the flag and slept
++            // the radio. An enqueued ASAP task was then never launched:
++            // ASAP tasks don't arm the planner timer and rp_callback
++            // early-returns once both flags clear, so the chip slept
++            // forever while the host believed the radio was armed (RX
++            // submit returned OK, chip RX counters flat). Run the arbiter
++            // so the enqueued task launches; the launch callbacks re-start
++            // the TCXO and wake the radio.
++            rp_task_arbiter( rp, __func__ );
+         }
+ 
+         smtc_modem_hal_set_ant_switch( false );
+-- 
+2.55.0
+

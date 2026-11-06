@@ -1,0 +1,32 @@
+# Target SoC: ESP32-S3 inside Lierda L-LRMAM36-FANN4 module
+CONFIG_IDF_TARGET="esp32s3"
+
+# Run Dual-Core Xtensa LX7 at 240 MHz
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y
+
+# Flash Configuration (8 MB Flash inside L-LRMAM36-FANN4)
+CONFIG_ESPTOOLPY_FLASHSIZE_8MB=y
+CONFIG_ESPTOOLPY_FLASHMODE_QIO=y
+CONFIG_ESPTOOLPY_FLASHFREQ_80M=y
+
+# PSRAM Configuration (8 MB Octal PSRAM inside L-LRMAM36-FANN4)
+CONFIG_SPIRAM=y
+CONFIG_SPIRAM_MODE_OCT=y
+CONFIG_SPIRAM_SPEED_80M=y
+CONFIG_SPIRAM_USE_MALLOC=y
+CONFIG_SPIRAM_MALLOC_ALWAYSINTERNAL=16384
+
+# Lierda AM36-Pico Board Selection (SPI3 internal wiring to LR2021)
+CONFIG_LIERDA_BOARD_LRMAM36_FANN4=y
+
+# High-resolution 1 kHz FreeRTOS tick for sub-millisecond radio scheduling
+CONFIG_FREERTOS_HZ=1000
+
+# Console output: Secondary on UART0 (CON1 via CP2105) so CON2 (USB-Serial-JTAG)
+# can be used cleanly for binary SLB1 frames and JSON telemetry
+CONFIG_ESP_CONSOLE_UART_DEFAULT=y
+CONFIG_ESP_CONSOLE_SECONDARY_NONE=y
+CONFIG_ESP_CONSOLE_UART_BAUDRATE=921600
+
+# Compiler optimization for low-latency packet processing
+CONFIG_COMPILER_OPTIMIZATION_PERF=y

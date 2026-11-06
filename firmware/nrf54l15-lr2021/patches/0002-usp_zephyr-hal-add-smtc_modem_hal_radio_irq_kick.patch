@@ -1,0 +1,56 @@
+From ba619789a1b18f459729f6cafc2780bc810c4e22 Mon Sep 17 00:00:00 2001
+From: Mano Thanabalan <mano.thanabalan@gmail.com>
+Date: Wed, 26 Aug 2026 00:59:16 +0800
+Subject: [PATCH 1/2] =?UTF-8?q?hal:=20add=20smtc=5Fmodem=5Fhal=5Fradio=5Fi?=
+ =?UTF-8?q?rq=5Fkick()=20=E2=80=94=20lost-edge=20resuscitation=20entry?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Public re-injection of the radio IRQ event (calls the registered RAC
+irq callback exactly as the GPIO ISR would have). The transceiver
+event pin interrupt is edge-triggered while the chip holds its IRQ
+line high until serviced over SPI; an edge lost in a disabled window
+stalls the awaiting transaction forever. The application main loop
+polls the pin level and calls this when it observes the interrupt
+undelivered. Idempotent when no IRQ is pending.
+---
+ modules/smtc_modem_hal/smtc_modem_hal.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+
+diff --git a/modules/smtc_modem_hal/smtc_modem_hal.c b/modules/smtc_modem_hal/smtc_modem_hal.c
+index ef24d8b..86d03b6 100644
+--- a/modules/smtc_modem_hal/smtc_modem_hal.c
++++ b/modules/smtc_modem_hal/smtc_modem_hal.c
+@@ -329,6 +329,28 @@ void smtc_modem_hal_radio_irq_clear_pending( void )
+     prv_radio_irq_pending_while_disabled      = false;
+ }
+ 
++void smtc_modem_hal_radio_irq_kick( void )
++{
++    /* LOST-EDGE RESUSCITATION: the transceiver's event pin interrupt is
++     * EDGE-triggered (see lr20xx_board.c), and the chip holds its IRQ
++     * line HIGH until the mask is cleared over SPI. An edge that fires
++     * while the GPIO interrupt is momentarily disabled — the RAC
++     * reconfigures the radio across transaction boundaries, exactly when
++     * the peer's phase-aligned frame arrives — is lost forever: the pin
++     * stays high, no further edge can occur, and the transaction's
++     * completion or the received packet is never surfaced (bench
++     * 2026-08-25: chip demod counted the packets — hwrx grew — while the
++     * app saw nothing, in both TX (hung burst) and RX (eaten vote) form).
++     * The main loop calls this periodically: if the event pin is still
++     * HIGH, the interrupt the chip is asserting was never delivered —
++     * re-inject it here. Safe by construction: the RAC's irq processing
++     * is idempotent when no IRQ is actually pending. */
++    if( prv_modem_irq_enabled && prv_smtc_modem_hal_radio_irq_callback != NULL )
++    {
++        prv_smtc_modem_hal_radio_irq_callback( prv_smtc_modem_hal_radio_irq_context );
++    }
++}
++
+ bool smtc_modem_external_stack_currently_use_radio( void )
+ {
+     /* return false if the radio is available for the lbm stack
+-- 
+2.55.0
+

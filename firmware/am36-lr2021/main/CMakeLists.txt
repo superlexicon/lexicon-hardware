@@ -1,0 +1,15 @@
+idf_component_register(
+    SRCS
+        "main.c"
+        "flrc_burst_protocol.c"
+        "am36_usb_io.c"
+    INCLUDE_DIRS
+        "."
+    REQUIRES
+        driver
+        esp_timer
+        esp_hw_support
+        esp_system
+        freertos
+        log
+)

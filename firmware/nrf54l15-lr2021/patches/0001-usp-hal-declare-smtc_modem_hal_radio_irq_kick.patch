@@ -1,0 +1,37 @@
+From 03925db549b403c4c3f2ea92afcc16fff34d3786 Mon Sep 17 00:00:00 2001
+From: Mano Thanabalan <mano.thanabalan@gmail.com>
+Date: Wed, 26 Aug 2026 00:59:16 +0800
+Subject: [PATCH] hal: declare smtc_modem_hal_radio_irq_kick() (lost-edge
+ resuscitation)
+
+---
+ smtc_rac_lib/smtc_modem_hal/smtc_modem_hal.h | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/smtc_rac_lib/smtc_modem_hal/smtc_modem_hal.h b/smtc_rac_lib/smtc_modem_hal/smtc_modem_hal.h
+index 524fe9c..d97fc0e 100644
+--- a/smtc_rac_lib/smtc_modem_hal/smtc_modem_hal.h
++++ b/smtc_rac_lib/smtc_modem_hal/smtc_modem_hal.h
+@@ -272,6 +272,19 @@ uint32_t smtc_modem_hal_get_random_nb_in_range( const uint32_t val_1, const uint
+  */
+ void smtc_modem_hal_irq_config_radio_irq( void ( *callback )( void* context ), void* context );
+ 
++/**
++ * @brief Re-inject the radio IRQ event into the stack (lost-edge
++ *        resuscitation).
++ *
++ * The transceiver's event pin interrupt is edge-triggered while the chip
++ * holds its IRQ line high until the mask is cleared over SPI. An edge
++ * fired while the GPIO interrupt is momentarily disabled is lost forever.
++ * The application main loop calls this when the pin is observed stuck
++ * high: it invokes the registered radio IRQ callback exactly as the GPIO
++ * ISR would have. Idempotent when no IRQ is actually pending.
++ */
++void smtc_modem_hal_radio_irq_kick( void );
++
+ /* ------------ Radio management ------------
+  *@brief Check if the radio is free
+  * @remark except a very specific application, this function should always return false
+-- 
+2.55.0
+

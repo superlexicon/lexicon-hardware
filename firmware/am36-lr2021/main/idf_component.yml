@@ -1,0 +1,8 @@
+## IDF Component Manager Manifest File
+dependencies:
+  idf:
+    version: '>=5.4.0'
+  lierda-iot/esp_lora_driver:
+    version: '*'
+  espressif/led_strip:
+    version: '^2.5.0'

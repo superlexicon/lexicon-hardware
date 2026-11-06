@@ -1,0 +1,76 @@
+From 877ae250bee90f2a3b82844f50ff3a3ff901d6ea Mon Sep 17 00:00:00 2001
+From: Mano Thanabalan <mano@superlexicon.dev>
+Date: Sun, 6 Sep 2026 16:36:51 +0800
+Subject: [PATCH] =?UTF-8?q?smtc=5Frac=5Fflrc=5Fburst:=20map=20TX=5FDONE=20?=
+ =?UTF-8?q?onto=20the=20host=20line=20=E2=80=94=20single-packet=20bursts?=
+ =?UTF-8?q?=20complete?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+A single-packet TX burst (payload <= pld_len — every vote at the 511B
+runtime) completes with TX_DONE and no per-packet TX_TIMESTAMP. The DIO
+mask mapped TX_TIMESTAMP only, so such bursts never delivered a
+completion edge: the host saw 'tx never aired' after the planner
+timeout, on every node, every vote window (SuperLexicon bench
+2026-09-06).
+
+TX_DONE now asserts the host line and is accepted as burst completion
+ONLY when the byte accounting shows exactly one packet outstanding — a
+mid-burst spurious TX_DONE cannot truncate a healthy multi-packet
+burst.
+---
+ smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c | 30 ++++++++++++++++++++-
+ 1 file changed, 29 insertions(+), 1 deletion(-)
+
+diff --git a/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c b/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c
+index cb1a7b1..f2733ea 100644
+--- a/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c
++++ b/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c
+@@ -685,6 +685,29 @@ static void smtc_rac_flrc_post_tx_callback( rp_status_t status )
+             return;
+         }
+ 
++        if( ( radio_irq & RAL_IRQ_TX_DONE ) == RAL_IRQ_TX_DONE &&
++            smtc_rac_flrc_tx_fragmented_data.tx_nb_bytes_sent +
++                    flrc_burst_rp_radio_params.tx.flrc.pkt_params.pld_len_in_bytes ==
++                rac_config->radio_params.flrc_burst.burst_tx_size )
++        {
++            // TX_DONE with exactly one packet outstanding: the
++            // single-packet-burst completion (no timestamp on this
++            // path). The accounting guard makes mid-burst spurious
++            // TX_DONEs impossible to mistake for completion. Notify the
++            // app BEFORE unlocking — its UNLOCKED handler reads the
++            // aired state this sets (bench 2026-09-06: without this
++            // call every single-packet burst aired but was reported
++            // 'tx never aired').
++            smtc_rac_flrc_tx_fragmented_data.tx_nb_bytes_sent =
++                rac_config->radio_params.flrc_burst.burst_tx_size;
++            if( backup_user_callback_post_radio_transaction != NULL )
++            {
++                backup_user_callback_post_radio_transaction( RP_STATUS_TX_DONE );
++            }
++            smtc_rac_unlock_radio_access( rp->radio_task_id );
++            return;
++        }
++
+         if( ( radio_irq & RAL_IRQ_TX_TIMESTAMP ) == RAL_IRQ_TX_TIMESTAMP )
+         {
+             smtc_rac_flrc_tx_fragmented_data.tx_nb_bytes_sent +=
+@@ -892,7 +915,12 @@ static void smtc_rac_flrc_tx_callback( void* rp_void )
+     // a fresh fault).
+     ( void ) lr20xx_system_clear_errors( rp->radio->ral.context );
+ 
+-    ral_irq_t irq = RAL_IRQ_TX_TIMESTAMP | RAL_IRQ_ERROR | RAL_IRQ_CMD_ERROR;
++    // TX_DONE included: a SINGLE-packet burst (payload <= pld_len, e.g.
++    // a vote at the 511B runtime) completes with TX_DONE and no
++    // per-packet timestamp — masked out, such bursts hung until the
++    // planner timeout (SuperLexicon bench 2026-09-06: every vote TX
++    // 'tx never aired' at the 511B runtime, on every node).
++    ral_irq_t irq = RAL_IRQ_TX_TIMESTAMP | RAL_IRQ_TX_DONE | RAL_IRQ_ERROR | RAL_IRQ_CMD_ERROR;
+ 
+     SMTC_MODEM_HAL_PANIC_ON_FAILURE( ral_set_dio_irq_params( &( rp->radio->ral ), irq ) == RAL_STATUS_OK );
+     ral_clear_tx_fifo( &rp->radio->ral );
+-- 
+2.55.0
+

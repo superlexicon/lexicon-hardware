@@ -1,0 +1,79 @@
+From 49b1886f37720e5e86d9f36349b461190b4c8b78 Mon Sep 17 00:00:00 2001
+From: Mano Thanabalan <mano.thanabalan@gmail.com>
+Date: Wed, 2 Sep 2026 08:03:32 +0800
+Subject: [PATCH] =?UTF-8?q?rac=20flrc=20burst:=20TX=20callback=20reads=20t?=
+ =?UTF-8?q?he=20real=20IRQ=20status=20=E2=80=94=20error=20IRQs=20abort=20t?=
+ =?UTF-8?q?he=20burst=20cleanly,=20strays=20are=20ignored?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The hardcoded RAL_IRQ_TX_TIMESTAMP counted every interrupt during a TX
+burst as a packet-sent event. Error IRQs (PLL/chip-busy), stray edges and
+resuscitation kicks advanced the byte counter on fiction; the firmware
+stopped refilling the FIFO at the wrong point and the chip's TX FIFO
+underflowed mid-packet — sequencer hang, BUSY stuck high, the radio deaf
+for ~20s until its internal timeout unwound (SuperLexicon bench
+2026-09-01: 20.5s TX-LATENCY spikes on vote frames).
+
+Now: the real IRQ status is read and cleared; ERROR IRQs read/clear the
+error registers and abort the burst (the host re-votes / re-sends);
+genuine TX_TIMESTAMP/TX_DONE events advance the counter; strays are
+ignored.
+---
+ smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c | 30 +++++++++++++++++----
+ 1 file changed, 25 insertions(+), 5 deletions(-)
+
+diff --git a/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c b/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c
+index 862d879..afa4c65 100644
+--- a/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c
++++ b/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c
+@@ -563,20 +563,40 @@ static void smtc_rac_flrc_post_tx_callback( rp_status_t status )
+     rac_config->smtc_rac_data_result.radio_end_timestamp_ms = rp->irq_timestamp_ms[rp->radio_task_id];
+     if( status == RP_STATUS_RADIO_LOCKED )
+     {
+-        ral_irq_t radio_irq = RAL_IRQ_TX_TIMESTAMP;
++        ral_irq_t radio_irq = RAL_IRQ_NONE;
++
++        // READ THE REAL IRQ STATUS (SuperLexicon patch 0005): the
++        // hardcoded RAL_IRQ_TX_TIMESTAMP counted EVERY interrupt as a
++        // packet-sent — error IRQs (PLL/chip-busy), stray edges and
++        // resuscitation kicks advanced the byte counter on fiction, the
++        // firmware stopped refilling the FIFO at the wrong point, and the
++        // chip's TX FIFO underflowed mid-packet: sequencer hang, BUSY
++        // stuck high, radio deaf for ~20s (SuperLexicon bench
++        // 2026-09-01, TX-LATENCY 20525ms spikes).
++        SMTC_MODEM_HAL_PANIC_ON_FAILURE( ral_get_and_clear_irq_status( &rp->radio->ral, &radio_irq ) == RAL_STATUS_OK );
+ 
+-        // SMTC_MODEM_HAL_PANIC_ON_FAILURE( ral_get_irq_status( &rp->radio->ral, &radio_irq ) == RAL_STATUS_OK );
+         if( ( radio_irq & RAL_IRQ_ERROR ) == RAL_IRQ_ERROR )
+         {
+-#if defined( LR20XX ) && defined( RAC_FLRC_BURST_DEBUG_ENABLE )
+-            uint16_t errors;
++            // The chip raised an ERROR interrupt (PLL lock, chip-busy
++            // overrun, ...): read and clear the error registers, then
++            // fail this burst cleanly instead of pretending packets
++            // were sent.
++            uint16_t errors = 0;
+             lr20xx_system_get_errors( rp->radio->ral.context, &errors );
+             RAC_LOG_ERROR( "rac flrc: TX Error %x \n", errors );
+             if( errors != 0 )
+             {
+                 lr20xx_system_clear_errors( rp->radio->ral.context );
+             }
+-#endif  // LR20XX && RAC_FLRC_BURST_DEBUG_ENABLE
++            smtc_rac_abort_radio_submit( rp->radio_task_id );
++            return;
++        }
++
++        if( ( radio_irq & ( RAL_IRQ_TX_TIMESTAMP | RAL_IRQ_TX_DONE ) ) == RAL_IRQ_NONE )
++        {
++            // A stray/unknown IRQ during the burst: NOT a packet-sent
++            // event — ignore it and keep the byte counter faithful.
++            return;
+         }
+ 
+         if( ( radio_irq & RAL_IRQ_TX_TIMESTAMP ) == RAL_IRQ_TX_TIMESTAMP )
+-- 
+2.55.0
+

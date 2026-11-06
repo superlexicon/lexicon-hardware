@@ -1,0 +1,259 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000">
+  <defs>
+    <pattern id="pcbGrid" width="18" height="18" patternUnits="userSpaceOnUse">
+      <path d="M 18 0 L 0 0 0 18" fill="none" stroke="#1e293b" stroke-width="0.6"/>
+    </pattern>
+  </defs>
+
+  <rect width="1600" height="1000" fill="#060b14"/>
+  <rect x="20" y="20" width="1560" height="960" fill="url(#pcbGrid)" stroke="#34d399" stroke-width="2.5"/>
+
+  <!-- Top Banner -->
+  <rect x="28" y="28" width="1544" height="44" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+  <text x="45" y="55" font-family="monospace" font-size="16" font-weight="bold" fill="#34d399">6-LAYER PCB CAD LAYOUT &amp; STACKUP • LEXICON DUAL-RF USB DONGLE (60.40 × 28.40 × 1.60 mm)</text>
+  <text x="1555" y="55" font-family="monospace" font-size="13" font-weight="bold" fill="#38bdf8" text-anchor="end">1× USB-C + 2× PARALLEL SMA • GERBER X2</text>
+
+  <!-- Dimension Callout Horizontal (60.40 mm) -->
+  <line x1="80" y1="108" x2="1167" y2="108" stroke="#38bdf8" stroke-width="1.5"/>
+  <line x1="80" y1="98" x2="80" y2="132" stroke="#38bdf8" stroke-width="1.5"/>
+  <line x1="1167" y1="98" x2="1167" y2="132" stroke="#38bdf8" stroke-width="1.5"/>
+  <rect x="520" y="92" width="210" height="24" rx="4" fill="#0f172a" stroke="#38bdf8" stroke-width="1"/>
+  <text x="625" y="108" font-family="monospace" font-size="12" font-weight="bold" fill="#38bdf8" text-anchor="middle">← 60.40 mm (2.378 in) →</text>
+
+  <!-- Dimension Callout Vertical (28.40 mm) -->
+  <line x1="48" y1="140" x2="48" y2="651" stroke="#38bdf8" stroke-width="1.5"/>
+  <line x1="38" y1="140" x2="72" y2="140" stroke="#38bdf8" stroke-width="1.5"/>
+  <line x1="38" y1="651" x2="72" y2="651" stroke="#38bdf8" stroke-width="1.5"/>
+  <text x="40" y="395" font-family="monospace" font-size="12" font-weight="bold" fill="#38bdf8" text-anchor="middle" transform="rotate(-90 40 395)">← 28.40 mm (1.118 in) →</text>
+
+  <!-- PCB Board Substrate (Edge.Cuts 60.40 x 28.40 mm => 1087 x 511 px) -->
+  <rect x="80" y="140" width="1087" height="511" rx="14" fill="#0b1520" stroke="#fbbf24" stroke-width="3"/>
+
+  <!-- Exposed ENIG Gold Perimeter Ground Guard Ring + Via Fence -->
+  <rect x="94" y="154" width="1059" height="483" rx="8" fill="none" stroke="#eab308" stroke-width="10" stroke-opacity="0.45"/>
+
+  <!-- Vertical RF Isolation Via Wall at X = 36.0 mm (728) -->
+  <line x1="728" y1="154" x2="728" y2="637" stroke="#eab308" stroke-width="8" stroke-opacity="0.5"/>
+  <!-- Horizontal RF0/RF1 Isolation Via Wall at Y = 14.2 mm (396) -->
+  <line x1="728" y1="396" x2="1153" y2="396" stroke="#eab308" stroke-width="8" stroke-opacity="0.5"/>
+
+  <!-- 4 Corner M1.6 Alignment / Mounting Holes -->
+  <circle cx="118" cy="178" r="14" fill="#060b14" stroke="#eab308" stroke-width="4"/>
+  <circle cx="118" cy="613" r="14" fill="#060b14" stroke="#eab308" stroke-width="4"/>
+  <circle cx="1125" cy="178" r="14" fill="#060b14" stroke="#eab308" stroke-width="4"/>
+  <circle cx="1125" cy="613" r="14" fill="#060b14" stroke="#eab308" stroke-width="4"/>
+
+  <!-- In3.Cu Split Power Planes (Translucent Overlays) -->
+  <rect x="150" y="168" width="565" height="455" rx="6" fill="#10b981" fill-opacity="0.07" stroke="#10b981" stroke-width="1" stroke-dasharray="4,4"/>
+  <rect x="740" y="168" width="380" height="218" rx="6" fill="#38bdf8" fill-opacity="0.10" stroke="#38bdf8" stroke-width="1" stroke-dasharray="4,4"/>
+  <rect x="740" y="406" width="380" height="218" rx="6" fill="#a855f7" fill-opacity="0.10" stroke="#c084fc" stroke-width="1" stroke-dasharray="4,4"/>
+
+  <!-- J1: SINGLE CENTERED USB-C RECEPTACLE ON LEFT EDGE -->
+  <rect x="66" y="320" width="124" height="152" rx="5" fill="#334155" stroke="#e2e8f0" stroke-width="2.5"/>
+  <text x="128" y="388" font-family="monospace" font-size="12" font-weight="bold" fill="#38bdf8" text-anchor="middle">J1: USB-C</text>
+  <text x="128" y="406" font-family="monospace" font-size="9.5" fill="#e2e8f0" text-anchor="middle">SINGLE RETAIL</text>
+  <text x="128" y="422" font-family="monospace" font-size="9" fill="#34d399" text-anchor="middle">90Ω DIFF CDC</text>
+
+  <!-- D1 USBLC6-2SC6 ESD Array -->
+  <rect x="218" y="376" width="56" height="40" rx="3" fill="#1e293b" stroke="#f43f5e" stroke-width="1.8"/>
+  <text x="246" y="400" font-family="monospace" font-size="9.5" font-weight="bold" fill="#fda4af" text-anchor="middle">D1 ESD</text>
+
+  <!-- U4, U5, U6 Ultra-Low-Noise 3.3V LDOs + Ferrite Beads FB1..FB3 -->
+  <rect x="295" y="258" width="76" height="38" rx="3" fill="#1e293b" stroke="#38bdf8" stroke-width="1.8"/>
+  <text x="333" y="281" font-family="monospace" font-size="9.5" font-weight="bold" fill="#38bdf8" text-anchor="middle">U5 3V3_RF0</text>
+
+  <rect x="295" y="315" width="76" height="38" rx="3" fill="#1e293b" stroke="#34d399" stroke-width="1.8"/>
+  <text x="333" y="338" font-family="monospace" font-size="9.5" font-weight="bold" fill="#34d399" text-anchor="middle">U4 3V3_DIG</text>
+
+  <rect x="295" y="455" width="76" height="38" rx="3" fill="#1e293b" stroke="#c084fc" stroke-width="1.8"/>
+  <text x="333" y="478" font-family="monospace" font-size="9.5" font-weight="bold" fill="#c084fc" text-anchor="middle">U6 3V3_RF1</text>
+
+  <!-- Top Edge Tactile Switches SW1, SW2, SW3 & LED D5 -->
+  <rect x="260" y="164" width="84" height="42" rx="4" fill="#334155" stroke="#f8fafc" stroke-width="1.8"/>
+  <text x="302" y="189" font-family="monospace" font-size="10" font-weight="bold" fill="#f43f5e" text-anchor="middle">SW1 RST</text>
+
+  <rect x="372" y="164" width="84" height="42" rx="4" fill="#334155" stroke="#f8fafc" stroke-width="1.8"/>
+  <text x="414" y="189" font-family="monospace" font-size="10" font-weight="bold" fill="#fbbf24" text-anchor="middle">SW2 BOOT</text>
+
+  <rect x="484" y="164" width="84" height="42" rx="4" fill="#334155" stroke="#f8fafc" stroke-width="1.8"/>
+  <text x="526" y="189" font-family="monospace" font-size="10" font-weight="bold" fill="#38bdf8" text-anchor="middle">SW3 MODE</text>
+
+  <rect x="594" y="170" width="34" height="34" rx="4" fill="#065f46" stroke="#34d399" stroke-width="2"/>
+  <circle cx="611" cy="187" r="9" fill="#00f5d4"/>
+  <text x="655" y="191" font-family="monospace" font-size="10" font-weight="bold" fill="#34d399">D5 RGB</text>
+
+  <!-- U1: ESP32-S3-WROOM-1-N16R8 Module -->
+  <rect x="405" y="232" width="300" height="370" rx="6" fill="#1e293b" stroke="#34d399" stroke-width="2.5"/>
+  <rect x="422" y="310" width="266" height="274" rx="4" fill="#334155" stroke="#94a3b8" stroke-width="1.5"/>
+  <!-- PCB Antenna Meander of ESP32-S3 -->
+  <path d="M 445 292 L 445 252 L 475 252 L 475 285 L 505 285 L 505 252 L 535 252 L 535 285 L 565 285 L 565 252 L 620 252" fill="none" stroke="#eab308" stroke-width="4"/>
+  <text x="555" y="425" font-family="monospace" font-size="15" font-weight="bold" fill="#ecfdf5" text-anchor="middle">U1: ESP32-S3</text>
+  <text x="555" y="448" font-family="monospace" font-size="11.5" fill="#34d399" text-anchor="middle">WROOM-1-N16R8</text>
+  <text x="555" y="470" font-family="monospace" font-size="10" fill="#cbd5e1" text-anchor="middle">240MHz Dual-Core LX7</text>
+  <text x="555" y="488" font-family="monospace" font-size="10" fill="#fde68a" text-anchor="middle">8MB Octal PSRAM • 16MB Flash</text>
+  <text x="555" y="508" font-family="monospace" font-size="10" fill="#38bdf8" text-anchor="middle">Option-C 64KB Burst Engine</text>
+
+  <!-- USB 90-Ohm Differential Pair Traces from J1 through D1 into U1 -->
+  <line x1="190" y1="391" x2="218" y2="391" stroke="#ef4444" stroke-width="3"/>
+  <line x1="190" y1="401" x2="218" y2="401" stroke="#ef4444" stroke-width="3"/>
+  <line x1="274" y1="391" x2="405" y2="391" stroke="#ef4444" stroke-width="3"/>
+  <line x1="274" y1="401" x2="405" y2="401" stroke="#ef4444" stroke-width="3"/>
+
+  <!-- In2.Cu Stripline Dual 20MHz SPI2 & SPI3 DMA Buses (Cyan & Purple) -->
+  <path d="M 705 330 L 765 300" fill="none" stroke="#38bdf8" stroke-width="5" stroke-dasharray="6,3"/>
+  <text x="735" y="290" font-family="monospace" font-size="9.5" font-weight="bold" fill="#38bdf8" text-anchor="middle">In2.Cu SPI2</text>
+
+  <path d="M 705 495 L 765 515" fill="none" stroke="#c084fc" stroke-width="5" stroke-dasharray="6,3"/>
+  <text x="735" y="535" font-family="monospace" font-size="9.5" font-weight="bold" fill="#c084fc" text-anchor="middle">In2.Cu SPI3</text>
+
+  <!-- ===================================================================== -->
+  <!-- RF COMPARTMENT SH1 (TOP-RIGHT): U2 LR2021 #0 -> J2 ANT0 SMA (915 MHz) -->
+  <!-- ===================================================================== -->
+  <rect x="748" y="172" width="290" height="206" rx="6" fill="#0f172a" stroke="#cbd5e1" stroke-width="3" stroke-dasharray="10,4"/>
+  <text x="760" y="192" font-family="monospace" font-size="11" font-weight="bold" fill="#38bdf8">SH1 SHIELD CAN (RF0: SUB-GHz / 2.4GHz)</text>
+
+  <!-- U2: Semtech LR2021 #0 (5x5mm QFN-32) -->
+  <rect x="768" y="242" width="90" height="90" rx="4" fill="#1e293b" stroke="#38bdf8" stroke-width="2.2"/>
+  <rect x="790" y="264" width="46" height="46" fill="#eab308" fill-opacity="0.4" stroke="#fde68a" stroke-width="1"/>
+  <text x="813" y="284" font-family="monospace" font-size="11" font-weight="bold" fill="#38bdf8" text-anchor="middle">U2</text>
+  <text x="813" y="299" font-family="monospace" font-size="9.5" font-weight="bold" fill="#f8fafc" text-anchor="middle">LR2021 #0</text>
+
+  <!-- Y1: 32.000 MHz TCXO #0 -->
+  <rect x="786" y="202" width="54" height="28" rx="3" fill="#eab308" fill-opacity="0.3" stroke="#fde68a" stroke-width="1.8"/>
+  <text x="813" y="220" font-family="monospace" font-size="9" font-weight="bold" fill="#fde68a" text-anchor="middle">Y1 TCXO</text>
+
+  <!-- RF0 Pi-Match + FL1 915MHz SAW Filter -->
+  <line x1="858" y1="287" x2="1142" y2="287" stroke="#ef4444" stroke-width="6"/>
+  <rect x="875" y="268" width="58" height="38" rx="3" fill="#1e293b" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="904" y="291" font-family="monospace" font-size="8.5" font-weight="bold" fill="#fde68a" text-anchor="middle">PI-MATCH</text>
+
+  <rect x="952" y="264" width="66" height="46" rx="4" fill="#064e3b" stroke="#34d399" stroke-width="2"/>
+  <text x="985" y="285" font-family="monospace" font-size="10" font-weight="bold" fill="#34d399" text-anchor="middle">FL1 DIP</text>
+  <text x="985" y="299" font-family="monospace" font-size="8.5" fill="#a7f3d0" text-anchor="middle">SUB-G/2G4</text>
+
+  <!-- J2: TOP-RIGHT DEDICATED ANT0 EDGE-LAUNCH GOLD SMA CONNECTOR -->
+  <rect x="1142" y="232" width="88" height="110" rx="4" fill="#ca8a04" stroke="#fef08a" stroke-width="2.5"/>
+  <text x="1186" y="276" font-family="monospace" font-size="11" font-weight="bold" fill="#0f172a" text-anchor="middle">J2 SMA #0</text>
+  <text x="1186" y="292" font-family="monospace" font-size="9" font-weight="bold" fill="#0f172a" text-anchor="middle">ANT0 DB</text>
+  <text x="1186" y="308" font-family="monospace" font-size="8.5" font-weight="bold" fill="#fef08a" text-anchor="middle">50Ω EDGE</text>
+
+  <!-- ===================================================================== -->
+  <!-- RF COMPARTMENT SH2 (BOTTOM-RIGHT): U3 LR2021 #1 -> J3 ANT1 SMA        -->
+  <!-- ===================================================================== -->
+  <rect x="748" y="412" width="290" height="206" rx="6" fill="#0f172a" stroke="#cbd5e1" stroke-width="3" stroke-dasharray="10,4"/>
+  <text x="760" y="432" font-family="monospace" font-size="11" font-weight="bold" fill="#c084fc">SH2 SHIELD CAN (RF1: SUB-GHz / 2.4GHz)</text>
+
+  <!-- U3: Semtech LR2021 #1 (5x5mm QFN-32) -->
+  <rect x="768" y="460" width="90" height="90" rx="4" fill="#1e293b" stroke="#c084fc" stroke-width="2.2"/>
+  <rect x="790" y="482" width="46" height="46" fill="#eab308" fill-opacity="0.4" stroke="#fde68a" stroke-width="1"/>
+  <text x="813" y="502" font-family="monospace" font-size="11" font-weight="bold" fill="#c084fc" text-anchor="middle">U3</text>
+  <text x="813" y="517" font-family="monospace" font-size="9.5" font-weight="bold" fill="#f8fafc" text-anchor="middle">LR2021 #1</text>
+
+  <!-- Y2: 32.000 MHz TCXO #1 -->
+  <rect x="786" y="562" width="54" height="28" rx="3" fill="#eab308" fill-opacity="0.3" stroke="#fde68a" stroke-width="1.8"/>
+  <text x="813" y="580" font-family="monospace" font-size="9" font-weight="bold" fill="#fde68a" text-anchor="middle">Y2 TCXO</text>
+
+  <!-- RF1 Pi-Match + FL2 Diplexer -->
+  <line x1="858" y1="505" x2="1142" y2="505" stroke="#ef4444" stroke-width="6"/>
+  <rect x="875" y="486" width="58" height="38" rx="3" fill="#1e293b" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="904" y="509" font-family="monospace" font-size="8.5" font-weight="bold" fill="#fde68a" text-anchor="middle">PI-MATCH</text>
+
+  <rect x="952" y="482" width="66" height="46" rx="4" fill="#3b0764" stroke="#c084fc" stroke-width="2"/>
+  <text x="985" y="503" font-family="monospace" font-size="10" font-weight="bold" fill="#e9d5ff" text-anchor="middle">FL2 DIP</text>
+  <text x="985" y="517" font-family="monospace" font-size="8.5" fill="#d8b4fe" text-anchor="middle">SUB-G/2G4</text>
+
+  <!-- J3: BOTTOM-RIGHT DEDICATED ANT1 EDGE-LAUNCH GOLD SMA CONNECTOR -->
+  <rect x="1142" y="450" width="88" height="110" rx="4" fill="#ca8a04" stroke="#fef08a" stroke-width="2.5"/>
+  <text x="1186" y="494" font-family="monospace" font-size="11" font-weight="bold" fill="#0f172a" text-anchor="middle">J3 SMA #1</text>
+  <text x="1186" y="510" font-family="monospace" font-size="9" font-weight="bold" fill="#0f172a" text-anchor="middle">ANT1 DB</text>
+  <text x="1186" y="526" font-family="monospace" font-size="8.5" font-weight="bold" fill="#fef08a" text-anchor="middle">50Ω EDGE</text>
+
+  <!-- ===================================================================== -->
+  <!-- RIGHT SIDEBAR: 6-LAYER DIELECTRIC STACKUP DIAGRAM (JLC06161H-3313)    -->
+  <!-- ===================================================================== -->
+  <rect x="1250" y="90" width="315" height="561" rx="6" fill="#0f172a" stroke="#38bdf8" stroke-width="1.8"/>
+  <text x="1407" y="116" font-family="monospace" font-size="13" font-weight="bold" fill="#38bdf8" text-anchor="middle">6-LAYER IMPEDANCE STACKUP</text>
+  <text x="1407" y="134" font-family="monospace" font-size="10.5" fill="#fde68a" text-anchor="middle">Code: JLC06161H-3313 (1.60mm ±10%)</text>
+
+  <!-- Layer Stackup Bars -->
+  <rect x="1270" y="152" width="275" height="24" fill="#eab308" stroke="#fef08a" stroke-width="1"/>
+  <text x="1407" y="168" font-family="monospace" font-size="10" font-weight="bold" fill="#0f172a" text-anchor="middle">ENIG Gold 2µ&quot; + Matte Black Mask</text>
+
+  <rect x="1270" y="180" width="275" height="32" fill="#ef4444" stroke="#fca5a5" stroke-width="1"/>
+  <text x="1407" y="200" font-family="monospace" font-size="10.5" font-weight="bold" fill="#fff" text-anchor="middle">L1 (F.Cu): 1oz (0.035mm) • 50Ω RF</text>
+
+  <rect x="1282" y="214" width="251" height="34" fill="#1e293b" stroke="#64748b" stroke-width="1"/>
+  <text x="1407" y="235" font-family="monospace" font-size="9.5" fill="#93c5fd" text-anchor="middle">Prepreg 3313: 0.0994mm (εr = 4.10)</text>
+
+  <rect x="1270" y="250" width="275" height="28" fill="#10b981" stroke="#6ee7b7" stroke-width="1"/>
+  <text x="1407" y="268" font-family="monospace" font-size="10" font-weight="bold" fill="#064e3b" text-anchor="middle">L2 (In1.Cu): 0.5oz (0.0175mm) • GND1</text>
+
+  <rect x="1282" y="280" width="251" height="52" fill="#0f172a" stroke="#64748b" stroke-width="1"/>
+  <text x="1407" y="310" font-family="monospace" font-size="9.5" fill="#cbd5e1" text-anchor="middle">FR4 TG170 Core 1: 0.550mm (εr = 4.60)</text>
+
+  <rect x="1270" y="334" width="275" height="28" fill="#38bdf8" stroke="#bae6fd" stroke-width="1"/>
+  <text x="1407" y="352" font-family="monospace" font-size="10" font-weight="bold" fill="#082f49" text-anchor="middle">L3 (In2.Cu): 0.5oz • SPI2/SPI3 DMA</text>
+
+  <rect x="1282" y="364" width="251" height="38" fill="#1e293b" stroke="#64748b" stroke-width="1"/>
+  <text x="1407" y="387" font-family="monospace" font-size="9.5" fill="#93c5fd" text-anchor="middle">Prepreg 2116: 0.1408mm (εr = 4.25)</text>
+
+  <rect x="1270" y="404" width="275" height="28" fill="#f59e0b" stroke="#fde68a" stroke-width="1"/>
+  <text x="1407" y="422" font-family="monospace" font-size="10" font-weight="bold" fill="#451a03" text-anchor="middle">L4 (In3.Cu): 0.5oz • Split +3V3 Planes</text>
+
+  <rect x="1282" y="434" width="251" height="52" fill="#0f172a" stroke="#64748b" stroke-width="1"/>
+  <text x="1407" y="464" font-family="monospace" font-size="9.5" fill="#cbd5e1" text-anchor="middle">FR4 TG170 Core 2: 0.550mm (εr = 4.60)</text>
+
+  <rect x="1270" y="488" width="275" height="28" fill="#10b981" stroke="#6ee7b7" stroke-width="1"/>
+  <text x="1407" y="506" font-family="monospace" font-size="10" font-weight="bold" fill="#064e3b" text-anchor="middle">L5 (In4.Cu): 0.5oz (0.0175mm) • GND2</text>
+
+  <rect x="1282" y="518" width="251" height="34" fill="#1e293b" stroke="#64748b" stroke-width="1"/>
+  <text x="1407" y="539" font-family="monospace" font-size="9.5" fill="#93c5fd" text-anchor="middle">Prepreg 3313: 0.0994mm (εr = 4.10)</text>
+
+  <rect x="1270" y="554" width="275" height="32" fill="#3b82f6" stroke="#93c5fd" stroke-width="1"/>
+  <text x="1407" y="574" font-family="monospace" font-size="10.5" font-weight="bold" fill="#fff" text-anchor="middle">L6 (B.Cu): 1oz (0.035mm) • Bottom</text>
+
+  <text x="1270" y="612" font-family="monospace" font-size="9.5" fill="#34d399">• 50Ω CPWG (L1 ref L2): W=0.23mm, S=0.15mm</text>
+  <text x="1270" y="630" font-family="monospace" font-size="9.5" fill="#38bdf8">• 90Ω Diff (L1 ref L2): W=0.22mm, S=0.15mm</text>
+
+  <!-- ===================================================================== -->
+  <!-- BOTTOM PANEL: EMS DFM, DRILL TABLE & FABRICATION NOTES                -->
+  <!-- ===================================================================== -->
+  <rect x="42" y="675" width="1523" height="282" rx="6" fill="#0f172a" stroke="#475569" stroke-width="1.8"/>
+  <line x1="560" y1="675" x2="560" y2="957" stroke="#334155" stroke-width="1.5"/>
+  <line x1="1080" y1="675" x2="1080" y2="957" stroke="#334155" stroke-width="1.5"/>
+
+  <!-- Column 1: PCB Fabrication Notes -->
+  <text x="58" y="702" font-family="monospace" font-size="13" font-weight="bold" fill="#34d399">1. EMS BARE-BOARD FABRICATION SPEC (IPC-6012 CLASS 2/3)</text>
+  <text x="58" y="726" font-family="monospace" font-size="10.5" fill="#e2e8f0">• Base Material: High-Tg FR4 (Tg ≥ 170°C, Isola 370HR / Shengyi S1000-2M)</text>
+  <text x="58" y="746" font-family="monospace" font-size="10.5" fill="#e2e8f0">• Finished Dimensions: 60.40 mm × 28.40 mm (±0.10 mm CNC Routed Outline)</text>
+  <text x="58" y="766" font-family="monospace" font-size="10.5" fill="#e2e8f0">• Panelization for SMT: 2×5 Array (10-up) with 5mm Breakaway Rails &amp; Fiducials</text>
+  <text x="58" y="786" font-family="monospace" font-size="10.5" fill="#fde68a">• Surface Finish: Immersion Gold (ENIG, 2µ&quot; Au over 120µ&quot; Electroless Ni)</text>
+  <text x="58" y="806" font-family="monospace" font-size="10.5" fill="#38bdf8">• Via Plugging: 0.20mm RF &amp; QFN-32 EPAD Vias Plugged (IPC-4761 VII)</text>
+  <text x="58" y="826" font-family="monospace" font-size="10.5" fill="#cbd5e1">• Min Trace / Space: 0.127 mm (5 mil) / 0.127 mm (5 mil)</text>
+  <text x="58" y="846" font-family="monospace" font-size="10.5" fill="#cbd5e1">• E-Test: 100% Flying Probe Netlist + TDR 50Ω ±5% Coupon</text>
+
+  <!-- Column 2: CNC Drill & Via Schedule + Layer Legend -->
+  <text x="578" y="702" font-family="monospace" font-size="13" font-weight="bold" fill="#38bdf8">2. EXCELLON CNC DRILL &amp; LAYER COLOR LEGEND</text>
+  <text x="578" y="726" font-family="monospace" font-size="10.5" fill="#fde68a">Tool  Drill Ø   Pad Ø     Count  Type / Function</text>
+  <text x="578" y="746" font-family="monospace" font-size="10.5" fill="#e2e8f0">T01   0.20 mm   0.40 mm   148    PTH RF Shield Fence &amp; QFN-32 EPAD Thermal Vias</text>
+  <text x="578" y="766" font-family="monospace" font-size="10.5" fill="#e2e8f0">T02   0.30 mm   0.60 mm    32    PTH +5V / +3V3 Power Rail Interconnect Vias</text>
+  <text x="578" y="786" font-family="monospace" font-size="10.5" fill="#e2e8f0">T03   0.60 mm   1.00 mm     4    PTH Single USB-C Receptacle Shield Mounting Legs</text>
+  <text x="578" y="806" font-family="monospace" font-size="10.5" fill="#e2e8f0">T04   1.60 mm   3.20 mm     4    PTH M1.6 Grounded Enclosure Alignment Bosses</text>
+  <line x1="578" y1="822" x2="1060" y2="822" stroke="#334155" stroke-width="1"/>
+  <rect x="578" y="836" width="16" height="16" fill="#ef4444"/><text x="602" y="849" font-family="monospace" font-size="10.5" fill="#e2e8f0">L1 (F.Cu): Top 50Ω CPWG Dual RF Feeds &amp; USB Diff</text>
+  <rect x="578" y="860" width="16" height="16" fill="#10b981"/><text x="602" y="873" font-family="monospace" font-size="10.5" fill="#e2e8f0">L2/L5 (In1/In4.Cu): Solid Reference GND</text>
+  <rect x="578" y="884" width="16" height="16" fill="#38bdf8"/><text x="602" y="897" font-family="monospace" font-size="10.5" fill="#e2e8f0">L3 (In2.Cu): 20MHz SPI2/SPI3 DMA Striplines</text>
+  <rect x="578" y="908" width="16" height="16" fill="#eab308"/><text x="602" y="921" font-family="monospace" font-size="10.5" fill="#e2e8f0">ENIG Gold Guard Ring &amp; 148-Via RF Fence</text>
+
+  <!-- Column 3: PCBA SMT Assembly & RF Factory Test -->
+  <text x="1098" y="702" font-family="monospace" font-size="13" font-weight="bold" fill="#fbbf24">3. SMT PCBA ASSEMBLY &amp; PARALLEL RF TEST PROTOCOL</text>
+  <text x="1098" y="726" font-family="monospace" font-size="10.5" fill="#e2e8f0">• Stencil: 0.12mm Laser-Cut Electropolished Nano-Coated</text>
+  <text x="1098" y="746" font-family="monospace" font-size="10.5" fill="#e2e8f0">• Solder Alloy: SAC305 Lead-Free RoHS (Peak 245°C Reflow)</text>
+  <text x="1098" y="766" font-family="monospace" font-size="10.5" fill="#e2e8f0">• Inspection: 100% 3D SPI + 3D AOI + X-Ray on U2/U3 QFN-32</text>
+  <text x="1098" y="786" font-family="monospace" font-size="10.5" fill="#34d399">• QFN-32 EPAD Void Criteria: &lt; 20% Total Area (IPC-A-610G)</text>
+  <text x="1098" y="806" font-family="monospace" font-size="10.5" fill="#38bdf8">• Automated Pogo-Pin ICT &amp; Dual-Port RF Test (40 sec/board):</text>
+  <text x="1098" y="826" font-family="monospace" font-size="10" fill="#cbd5e1">  1. Flash Option-C v3 ESP-IDF Firmware via J1 USB-C</text>
+  <text x="1098" y="844" font-family="monospace" font-size="10" fill="#cbd5e1">  2. Verify SPI2 (U2 LR2021 #0) &amp; SPI3 (U3 LR2021 #1) IDs</text>
+  <text x="1098" y="862" font-family="monospace" font-size="10" fill="#cbd5e1">  3. Measure S11 &lt; -15 dB &amp; S21 Isolation &gt; 55 dB (J2 vs J3)</text>
+  <text x="1098" y="880" font-family="monospace" font-size="10" fill="#fde68a">  4. Verify Parallel Dual-Band TX (Sub-GHz + 2.4GHz) on J2 &amp; J3</text>
+</svg>

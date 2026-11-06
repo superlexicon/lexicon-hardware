@@ -1,0 +1,311 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000">
+  <defs>
+    <pattern id="schGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1e293b" stroke-width="0.6"/>
+    </pattern>
+    <pattern id="schGridMajor" width="100" height="100" patternUnits="userSpaceOnUse">
+      <rect width="100" height="100" fill="url(#schGrid)"/>
+      <path d="M 100 0 L 0 0 0 100" fill="none" stroke="#334155" stroke-width="1.1"/>
+    </pattern>
+  </defs>
+
+  <!-- Background & ANSI Engineering Sheet Border -->
+  <rect width="1600" height="1000" fill="#070d19"/>
+  <rect x="20" y="20" width="1560" height="960" fill="url(#schGridMajor)" stroke="#38bdf8" stroke-width="2.5"/>
+  <rect x="28" y="28" width="1544" height="944" fill="none" stroke="#64748b" stroke-width="1"/>
+
+  <!-- Top Header Banner -->
+  <rect x="28" y="28" width="1544" height="44" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+  <text x="45" y="55" font-family="monospace" font-size="16" font-weight="bold" fill="#38bdf8">SCHEMATIC SHEET 1/1 • LEXICON DUAL-RF USB RADIO DONGLE (REV 2.0 RETAIL - 1× USB-C / 2× SMA)</text>
+  <text x="1555" y="55" font-family="monospace" font-size="13" font-weight="bold" fill="#fbbf24" text-anchor="end">KICAD 8.0 / IPC-2612 • 6-LAYER ENIG 50Ω CPWG</text>
+
+  <!-- ===================================================================== -->
+  <!-- ZONE 1 (TOP-LEFT): USB-C +5V VBUS IN & 3x ULTRA-LOW-NOISE RF LDOs     -->
+  <!-- ===================================================================== -->
+  <rect x="42" y="84" width="465" height="390" rx="6" fill="#0b1324" fill-opacity="0.88" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="55" y="106" font-family="monospace" font-size="13" font-weight="bold" fill="#fbbf24">1. POWER MANAGEMENT &amp; 3× ULTRA-LOW-NOISE RF LDO ISOLATION</text>
+
+  <!-- J1 VBUS IN & Polyfuse / Protection -->
+  <rect x="58" y="122" width="105" height="62" rx="4" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5"/>
+  <text x="66" y="140" font-family="monospace" font-size="11" font-weight="bold" fill="#38bdf8">J1 VBUS IN</text>
+  <text x="66" y="156" font-family="monospace" font-size="10" fill="#e2e8f0">+5V_VBUS_USBC</text>
+  <text x="66" y="172" font-family="monospace" font-size="9.5" fill="#94a3b8">F1: 1.5A PTC</text>
+
+  <!-- D4 B5819WSL & Bulk Input Filter -->
+  <line x1="163" y1="150" x2="225" y2="150" stroke="#f43f5e" stroke-width="2"/>
+  <rect x="176" y="132" width="40" height="34" rx="3" fill="#0f172a" stroke="#fbbf24" stroke-width="1.2"/>
+  <text x="196" y="147" font-family="monospace" font-size="9.5" font-weight="bold" fill="#fbbf24" text-anchor="middle">D4</text>
+  <text x="196" y="160" font-family="monospace" font-size="8.5" fill="#cbd5e1" text-anchor="middle">B5819W</text>
+  <text x="200" y="125" font-family="monospace" font-size="9.5" font-weight="bold" fill="#f43f5e">+5V_SYS (1.5A)</text>
+
+  <!-- 3 Independent LDO Regulators: U4 (+3V3_DIG), U5 (+3V3_RF0), U6 (+3V3_RF1) -->
+  <line x1="225" y1="150" x2="225" y2="395" stroke="#f43f5e" stroke-width="2"/>
+
+  <!-- U4: +3V3_DIG -->
+  <line x1="225" y1="165" x2="255" y2="165" stroke="#f43f5e" stroke-width="2"/>
+  <rect x="255" y="135" width="128" height="68" rx="4" fill="#1e293b" stroke="#34d399" stroke-width="1.6"/>
+  <text x="263" y="152" font-family="monospace" font-size="11" font-weight="bold" fill="#34d399">U4: RT9080-33GJ5</text>
+  <text x="263" y="166" font-family="monospace" font-size="9.5" fill="#cbd5e1">SOT-23-5 • 600mA LDO</text>
+  <text x="263" y="180" font-family="monospace" font-size="9" fill="#94a3b8">PSRR 75dB • 23µVrms</text>
+  <text x="263" y="194" font-family="monospace" font-size="9" fill="#fde68a">C21/C22: 10µF X5R 0603</text>
+  <line x1="383" y1="165" x2="492" y2="165" stroke="#34d399" stroke-width="2"/>
+  <rect x="396" y="152" width="46" height="24" rx="3" fill="#0f172a" stroke="#38bdf8" stroke-width="1.2"/>
+  <text x="419" y="167" font-family="monospace" font-size="9" font-weight="bold" fill="#38bdf8" text-anchor="middle">FB1 120Ω</text>
+  <text x="492" y="146" font-family="monospace" font-size="10.5" font-weight="bold" fill="#34d399" text-anchor="end">+3V3_DIG (MCU)</text>
+
+  <!-- U5: +3V3_RF0 -->
+  <line x1="225" y1="265" x2="255" y2="265" stroke="#f43f5e" stroke-width="2"/>
+  <rect x="255" y="235" width="128" height="68" rx="4" fill="#1e293b" stroke="#38bdf8" stroke-width="1.6"/>
+  <text x="263" y="252" font-family="monospace" font-size="11" font-weight="bold" fill="#38bdf8">U5: RT9080-33GJ5</text>
+  <text x="263" y="266" font-family="monospace" font-size="9.5" fill="#cbd5e1">Dedicated RF0 LDO</text>
+  <text x="263" y="280" font-family="monospace" font-size="9" fill="#94a3b8">Isolates RF0 Dual-Band</text>
+  <text x="263" y="294" font-family="monospace" font-size="9" fill="#fde68a">C23/C24: 10µF + 100nF</text>
+  <line x1="383" y1="265" x2="492" y2="265" stroke="#38bdf8" stroke-width="2"/>
+  <rect x="396" y="252" width="46" height="24" rx="3" fill="#0f172a" stroke="#38bdf8" stroke-width="1.2"/>
+  <text x="419" y="267" font-family="monospace" font-size="9" font-weight="bold" fill="#38bdf8" text-anchor="middle">FB2 120Ω</text>
+  <text x="492" y="246" font-family="monospace" font-size="10.5" font-weight="bold" fill="#38bdf8" text-anchor="end">+3V3_RF0 (U2)</text>
+
+  <!-- U6: +3V3_RF1 -->
+  <line x1="225" y1="365" x2="255" y2="365" stroke="#f43f5e" stroke-width="2"/>
+  <rect x="255" y="335" width="128" height="68" rx="4" fill="#1e293b" stroke="#a855f7" stroke-width="1.6"/>
+  <text x="263" y="352" font-family="monospace" font-size="11" font-weight="bold" fill="#c084fc">U6: RT9080-33GJ5</text>
+  <text x="263" y="366" font-family="monospace" font-size="9.5" fill="#cbd5e1">Dedicated RF1 LDO</text>
+  <text x="263" y="380" font-family="monospace" font-size="9" fill="#94a3b8">Isolates RF1 Dual-Band</text>
+  <text x="263" y="394" font-family="monospace" font-size="9" fill="#fde68a">C25/C26: 10µF + 100nF</text>
+  <line x1="383" y1="365" x2="492" y2="365" stroke="#c084fc" stroke-width="2"/>
+  <rect x="396" y="352" width="46" height="24" rx="3" fill="#0f172a" stroke="#c084fc" stroke-width="1.2"/>
+  <text x="419" y="367" font-family="monospace" font-size="9" font-weight="bold" fill="#c084fc" text-anchor="middle">FB3 120Ω</text>
+  <text x="492" y="346" font-family="monospace" font-size="10.5" font-weight="bold" fill="#c084fc" text-anchor="end">+3V3_RF1 (U3)</text>
+
+  <!-- Star Ground Note -->
+  <rect x="58" y="415" width="435" height="44" rx="4" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+  <text x="68" y="434" font-family="monospace" font-size="10" font-weight="bold" fill="#fde68a">PARALLEL DUAL-RADIO POWER ISOLATION:</text>
+  <text x="68" y="450" font-family="monospace" font-size="9.5" fill="#cbd5e1">Separate LDOs U5 &amp; U6 + BLM18PG121 beads prevent TX PA droop coupling.</text>
+
+  <!-- ===================================================================== -->
+  <!-- ZONE 2 (BOTTOM-LEFT): SINGLE USB-C NATIVE PORT, ESD & USER CONTROLS   -->
+  <!-- ===================================================================== -->
+  <rect x="42" y="488" width="465" height="468" rx="6" fill="#0b1324" fill-opacity="0.88" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="55" y="510" font-family="monospace" font-size="13" font-weight="bold" fill="#38bdf8">2. SINGLE RETAIL USB-C NATIVE INTERFACE, ESD &amp; CONTROLS</text>
+
+  <!-- J1: Single Centered USB-C Port -->
+  <rect x="58" y="535" width="145" height="125" rx="4" fill="#1e293b" stroke="#38bdf8" stroke-width="1.8"/>
+  <text x="68" y="555" font-family="monospace" font-size="11.5" font-weight="bold" fill="#38bdf8">J1: USB-C (SINGLE)</text>
+  <text x="68" y="573" font-family="monospace" font-size="9.5" fill="#cbd5e1">TYPE-C-31-M-12 (16-Pin)</text>
+  <text x="68" y="590" font-family="monospace" font-size="9.5" fill="#fde68a">CC1/CC2: R1,R2 5.1kΩ</text>
+  <text x="68" y="607" font-family="monospace" font-size="9.5" fill="#34d399">D+/D-: 90Ω Diff Pair</text>
+  <text x="68" y="624" font-family="monospace" font-size="9" fill="#94a3b8">Composite CDC + JTAG</text>
+  <text x="68" y="641" font-family="monospace" font-size="9" fill="#94a3b8">&gt;1 MB/s 64KB Option-C</text>
+
+  <!-- D1: USBLC6-2SC6 -->
+  <rect x="230" y="555" width="122" height="85" rx="4" fill="#0f172a" stroke="#34d399" stroke-width="1.5"/>
+  <text x="238" y="575" font-family="monospace" font-size="10.5" font-weight="bold" fill="#34d399">D1: USBLC6-2SC6</text>
+  <text x="238" y="592" font-family="monospace" font-size="9.5" fill="#cbd5e1">SOT-23-6 TVS Array</text>
+  <text x="238" y="608" font-family="monospace" font-size="9" fill="#94a3b8">Cj=2.5pF • ±15kV ESD</text>
+  <text x="238" y="624" font-family="monospace" font-size="9" fill="#fde68a">R3,R4: 22Ω Damping</text>
+  <line x1="203" y1="585" x2="230" y2="585" stroke="#38bdf8" stroke-width="2.5"/>
+  <line x1="203" y1="605" x2="230" y2="605" stroke="#34d399" stroke-width="2.5"/>
+  <line x1="352" y1="585" x2="528" y2="585" stroke="#38bdf8" stroke-width="2.5"/>
+  <line x1="352" y1="605" x2="528" y2="605" stroke="#34d399" stroke-width="2.5"/>
+  <text x="362" y="577" font-family="monospace" font-size="9.5" font-weight="bold" fill="#38bdf8">USB_DN (GPIO19)</text>
+  <text x="362" y="620" font-family="monospace" font-size="9.5" font-weight="bold" fill="#34d399">USB_DP (GPIO20)</text>
+
+  <!-- Single-Port Retail Architecture Note -->
+  <rect x="58" y="682" width="432" height="92" rx="4" fill="#1e293b" stroke="#fbbf24" stroke-width="1.4"/>
+  <text x="68" y="702" font-family="monospace" font-size="10.5" font-weight="bold" fill="#fbbf24">RETAIL SINGLE-USB-C COMPOSITE ARCHITECTURE:</text>
+  <text x="68" y="720" font-family="monospace" font-size="9.5" fill="#e2e8f0">• Eliminates external UART bridge IC &amp; 2nd USB-C port from dev kits</text>
+  <text x="68" y="738" font-family="monospace" font-size="9.5" fill="#34d399">• Native ESP32-S3 USB PHY provides simultaneous High-Speed CDC-ACM</text>
+  <text x="68" y="756" font-family="monospace" font-size="9.5" fill="#cbd5e1">  64KB packet stream + hardware JTAG debug + automatic DFU flashing</text>
+
+  <!-- Tactile Switches SW1, SW2, SW3 & WS2812B-2020 LED D5 -->
+  <rect x="58" y="795" width="432" height="145" rx="4" fill="#0f172a" stroke="#64748b" stroke-width="1.4"/>
+  <text x="68" y="815" font-family="monospace" font-size="11" font-weight="bold" fill="#e2e8f0">TACTILE BUTTONS (C&amp;K PTS636) &amp; ADDRESSABLE RGB TELEMETRY LED</text>
+  <text x="68" y="836" font-family="monospace" font-size="10" fill="#f43f5e">• SW1 (RST):  CHIP_PU/EN + R5 (10kΩ Pull-Up) + C9 (100nF RC)</text>
+  <text x="68" y="856" font-family="monospace" font-size="10" fill="#fbbf24">• SW2 (BOOT): GPIO0 + R6 (10kΩ) + C10 (100nF Hardware Debounce)</text>
+  <text x="68" y="876" font-family="monospace" font-size="10" fill="#38bdf8">• SW3 (MODE): GPIO47 + R7 (10kΩ Pull-Up) — Validator / Repeater Toggle</text>
+  <text x="68" y="896" font-family="monospace" font-size="10" fill="#34d399">• D5 (LED):   WS2812B-2020 (GPIO48) — Synced / TX Burst / LBT</text>
+  <text x="68" y="918" font-family="monospace" font-size="9.5" fill="#94a3b8">All switch inputs include 100nF hardware debounce MLCCs (0402 X7R).</text>
+
+  <!-- ===================================================================== -->
+  <!-- ZONE 3 (CENTER): U1 ESPRESSIF ESP32-S3-WROOM-1-N16R8 DUAL-CORE MCU    -->
+  <!-- ===================================================================== -->
+  <rect x="528" y="84" width="380" height="760" rx="6" fill="#0f172a" stroke="#34d399" stroke-width="2.2"/>
+  <rect x="528" y="84" width="380" height="52" rx="6" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
+  <text x="718" y="106" font-family="monospace" font-size="14" font-weight="bold" fill="#ecfdf5" text-anchor="middle">U1: ESP32-S3-WROOM-1-N16R8</text>
+  <text x="718" y="124" font-family="monospace" font-size="10.5" fill="#a7f3d0" text-anchor="middle">Dual-Core Xtensa LX7 @ 240MHz • 8MB PSRAM • 16MB Flash</text>
+
+  <!-- Left Pins of U1 -->
+  <text x="542" y="168" font-family="monospace" font-size="10.5" font-weight="bold" fill="#34d399">Pin 1 (3V3) ← +3V3_DIG (C27 10µF, C11 100nF)</text>
+  <text x="542" y="190" font-family="monospace" font-size="10.5" font-weight="bold" fill="#f43f5e">Pin 3 (EN/CHIP_PU) ← ESP_EN_RST (SW1)</text>
+  <text x="542" y="212" font-family="monospace" font-size="10.5" font-weight="bold" fill="#fbbf24">Pin 27 (GPIO0) ← ESP_GPIO0_BOOT (SW2)</text>
+  <text x="542" y="234" font-family="monospace" font-size="10.5" fill="#38bdf8">Pin 24 (GPIO47) ← ESP_GPIO47_MODE (SW3)</text>
+  <text x="542" y="256" font-family="monospace" font-size="10.5" fill="#34d399">Pin 25 (GPIO48) → ESP_GPIO48_LED (D5 WS2812B)</text>
+
+  <line x1="540" y1="275" x2="895" y2="275" stroke="#334155" stroke-width="1"/>
+  <text x="718" y="295" font-family="monospace" font-size="11" font-weight="bold" fill="#fde68a" text-anchor="middle">SINGLE USB-C HIGH-SPEED HOST TRANSPORT</text>
+  <text x="542" y="320" font-family="monospace" font-size="10.5" font-weight="bold" fill="#38bdf8">Pin 13 (GPIO19 / USB_D-) ↔ J1 USB-C (90Ω Diff)</text>
+  <text x="542" y="344" font-family="monospace" font-size="10.5" font-weight="bold" fill="#34d399">Pin 14 (GPIO20 / USB_D+) ↔ J1 USB-C (90Ω Diff)</text>
+  <text x="542" y="368" font-family="monospace" font-size="10" fill="#cbd5e1">• Hardware USB-CDC + JTAG Composite Endpoint</text>
+  <text x="542" y="388" font-family="monospace" font-size="10" fill="#fde68a">• Zero-Copy 64KB Option-C Ring Buffer DMA</text>
+
+  <!-- FSPI (SPI2) DMA Bus to Radio 0 (U2 LR2021 #0) -->
+  <line x1="540" y1="405" x2="895" y2="405" stroke="#334155" stroke-width="1"/>
+  <rect x="542" y="418" width="352" height="165" rx="4" fill="#082f49" fill-opacity="0.55" stroke="#38bdf8" stroke-width="1.4"/>
+  <text x="554" y="438" font-family="monospace" font-size="11.5" font-weight="bold" fill="#38bdf8">FSPI (SPI2) 20 MHz DMA BUS → RADIO 0 (U2 LR2021)</text>
+  <text x="554" y="458" font-family="monospace" font-size="10" fill="#e2e8f0">GPIO10 (FSPICS0)  → SPI2_RF0_NSS   (10kΩ Pull-Up R8)</text>
+  <text x="554" y="476" font-family="monospace" font-size="10" fill="#e2e8f0">GPIO12 (FSPICLK)  → SPI2_RF0_SCLK  (22Ω Damping R15)</text>
+  <text x="554" y="494" font-family="monospace" font-size="10" fill="#e2e8f0">GPIO11 (FSPID)    → SPI2_RF0_MOSI</text>
+  <text x="554" y="512" font-family="monospace" font-size="10" fill="#e2e8f0">GPIO13 (FSPIQ)    ← SPI2_RF0_MISO</text>
+  <text x="554" y="530" font-family="monospace" font-size="10" fill="#fde68a">GPIO14 (INPUT)    ← RF0_BUSY       (Hardware Flow Ctrl)</text>
+  <text x="554" y="548" font-family="monospace" font-size="10" fill="#34d399">GPIO21 (EXT_IRQ0) ← RF0_DIO9_IRQ   (TX_DONE / RX_DONE)</text>
+  <text x="554" y="566" font-family="monospace" font-size="10" fill="#f43f5e">GPIO9  (OUTPUT)   → RF0_NRESET     (10kΩ Pull-Up R9)</text>
+
+  <!-- HSPI (SPI3) DMA Bus to Radio 1 (U3 LR2021 #1) -->
+  <rect x="542" y="598" width="352" height="165" rx="4" fill="#2e1065" fill-opacity="0.55" stroke="#c084fc" stroke-width="1.4"/>
+  <text x="554" y="618" font-family="monospace" font-size="11.5" font-weight="bold" fill="#c084fc">HSPI (SPI3) 20 MHz DMA BUS → RADIO 1 (U3 LR2021)</text>
+  <text x="554" y="638" font-family="monospace" font-size="10" fill="#e2e8f0">GPIO35 (SPICS0)   → SPI3_RF1_NSS   (10kΩ Pull-Up R10)</text>
+  <text x="554" y="656" font-family="monospace" font-size="10" fill="#e2e8f0">GPIO36 (SPICLK)   → SPI3_RF1_SCLK  (22Ω Damping R16)</text>
+  <text x="554" y="674" font-family="monospace" font-size="10" fill="#e2e8f0">GPIO37 (SPID)     → SPI3_RF1_MOSI</text>
+  <text x="554" y="692" font-family="monospace" font-size="10" fill="#e2e8f0">GPIO38 (SPIQ)     ← SPI3_RF1_MISO</text>
+  <text x="554" y="710" font-family="monospace" font-size="10" fill="#fde68a">GPIO39 (INPUT)    ← RF1_BUSY       (Hardware Flow Ctrl)</text>
+  <text x="554" y="728" font-family="monospace" font-size="10" fill="#34d399">GPIO40 (EXT_IRQ1) ← RF1_DIO9_IRQ   (LBT / CAD / RX_IRQ)</text>
+  <text x="554" y="746" font-family="monospace" font-size="10" fill="#f43f5e">GPIO41 (OUTPUT)   → RF1_NRESET     (10kΩ Pull-Up R11)</text>
+
+  <!-- Firmware Architecture Callout inside U1 -->
+  <rect x="542" y="775" width="352" height="56" rx="4" fill="#0f172a" stroke="#34d399" stroke-width="1"/>
+  <text x="552" y="794" font-family="monospace" font-size="10" font-weight="bold" fill="#34d399">ESP-IDF OPTION-C v3 DUAL-CORE FIRMWARE:</text>
+  <text x="552" y="810" font-family="monospace" font-size="9.5" fill="#cbd5e1">• Core 0: USB-C CDC / Wi-Fi TCP + 65,024B Option-C Ring</text>
+  <text x="552" y="824" font-family="monospace" font-size="9.5" fill="#cbd5e1">• Core 1: Parallel SPI2 (RF0) &amp; SPI3 (RF1) ISR Engine</text>
+
+  <!-- ===================================================================== -->
+  <!-- ZONE 4 (TOP-RIGHT): SHIELD SH1 — RADIO 0 + DEDICATED ANT0 SMA (J2)    -->
+  <!-- ===================================================================== -->
+  <rect x="932" y="84" width="626" height="370" rx="6" fill="#082f49" fill-opacity="0.35" stroke="#38bdf8" stroke-width="2" stroke-dasharray="8,4"/>
+  <text x="946" y="106" font-family="monospace" font-size="13" font-weight="bold" fill="#38bdf8">3. SHIELD SH1: RADIO 0 (U2 LR2021 • SUB-GHz &amp; 2.4GHz) → DEDICATED J2 ANT0 SMA</text>
+
+  <!-- SPI2 Bus Lines from U1 to U2 -->
+  <line x1="908" y1="210" x2="950" y2="210" stroke="#38bdf8" stroke-width="3"/>
+
+  <!-- U2: Semtech LR2021 #0 -->
+  <rect x="950" y="125" width="215" height="230" rx="5" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+  <text x="1057" y="147" font-family="monospace" font-size="12" font-weight="bold" fill="#38bdf8" text-anchor="middle">U2: SEMTECH LR2021IMLTRT</text>
+  <text x="1057" y="163" font-family="monospace" font-size="9.5" fill="#cbd5e1" text-anchor="middle">VQFN-32 (5x5mm) • Parallel Radio 0</text>
+  <text x="960" y="186" font-family="monospace" font-size="9.5" fill="#e2e8f0">Pin 19..22: SPI2 (NSS/SCK/MOSI/MISO)</text>
+  <text x="960" y="204" font-family="monospace" font-size="9.5" fill="#fde68a">Pin 16: BUSY   → GPIO14</text>
+  <text x="960" y="222" font-family="monospace" font-size="9.5" fill="#34d399">Pin 14: DIO9   → GPIO21 (IRQ0)</text>
+  <text x="960" y="240" font-family="monospace" font-size="9.5" fill="#f43f5e">Pin 15: NRESET ← GPIO9</text>
+  <text x="960" y="258" font-family="monospace" font-size="9.5" fill="#38bdf8">Pin 28: VBAT_RF ← +3V3_RF0 (FB2)</text>
+  <text x="960" y="276" font-family="monospace" font-size="9.5" fill="#cbd5e1">Pin 9:  DC-DC_SW → L1 (12nH Murata)</text>
+  <text x="960" y="294" font-family="monospace" font-size="9.5" fill="#fde68a">Pin 24: XTA ← Y1 32.000MHz ±0.5ppm</text>
+  <text x="960" y="312" font-family="monospace" font-size="9.5" fill="#34d399">Pin 1..4: LF (Sub-GHz) + HF (2.4GHz)</text>
+  <text x="960" y="330" font-family="monospace" font-size="9.5" fill="#94a3b8">Pin 33: EPAD → 9x 0.2mm Thermal Vias</text>
+
+  <!-- Y1 TCXO Box -->
+  <rect x="950" y="368" width="215" height="72" rx="4" fill="#0f172a" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="960" y="388" font-family="monospace" font-size="10.5" font-weight="bold" fill="#fbbf24">Y1: NT2016SA-32.000000MHZ-NBG2</text>
+  <text x="960" y="404" font-family="monospace" font-size="9.5" fill="#cbd5e1">32.000 MHz ±0.5ppm TCXO (SMD-2016)</text>
+  <text x="960" y="420" font-family="monospace" font-size="9" fill="#94a3b8">Powered by LR2021 Pin 23 (VTCXO 1.8V)</text>
+
+  <!-- RF0 50-Ohm Pi-Match + Tai-Saw TA0632A 915 MHz SAW Bandpass Filter -->
+  <line x1="1165" y1="240" x2="1190" y2="240" stroke="#fbbf24" stroke-width="2.5"/>
+  <rect x="1190" y="145" width="165" height="190" rx="4" fill="#0f172a" stroke="#34d399" stroke-width="1.6"/>
+  <text x="1272" y="167" font-family="monospace" font-size="10.5" font-weight="bold" fill="#34d399" text-anchor="middle">RF0 DIPLEX &amp; MATCH (FL1)</text>
+  <text x="1200" y="187" font-family="monospace" font-size="9.5" fill="#e2e8f0">• L2: 12nH, L5: 6.8nH</text>
+  <text x="1200" y="205" font-family="monospace" font-size="9.5" fill="#e2e8f0">• C1..C4: 3.3pF C0G 0402</text>
+  <text x="1200" y="223" font-family="monospace" font-size="9.5" fill="#34d399">• FL1: LFD18868MDP2B</text>
+  <text x="1200" y="241" font-family="monospace" font-size="9" fill="#cbd5e1">  Sub-GHz + 2.4GHz Diplex</text>
+  <text x="1200" y="259" font-family="monospace" font-size="9" fill="#fde68a">• Out-of-Band Rej: &gt;48 dB</text>
+  <text x="1200" y="277" font-family="monospace" font-size="9" fill="#38bdf8">• Z0 = 50.0Ω ±5% CPWG</text>
+  <text x="1200" y="295" font-family="monospace" font-size="9" fill="#94a3b8">• D2: RClamp0521P 0.3pF</text>
+  <text x="1200" y="313" font-family="monospace" font-size="9" fill="#fde68a">• +22 dBm TX / -126 dBm RX</text>
+
+  <!-- J2: Dedicated ANT0 SMA Bulkhead for Radio 0 -->
+  <line x1="1355" y1="240" x2="1385" y2="240" stroke="#ef4444" stroke-width="3.5"/>
+  <rect x="1385" y="160" width="155" height="160" rx="4" fill="#1e293b" stroke="#fbbf24" stroke-width="2.2"/>
+  <text x="1462" y="184" font-family="monospace" font-size="11.5" font-weight="bold" fill="#fbbf24" text-anchor="middle">J2: ANT0 SMA-50Ω</text>
+  <text x="1462" y="202" font-family="monospace" font-size="9.5" fill="#fde68a" text-anchor="middle">DEDICATED RADIO 0 PORT</text>
+  <line x1="1395" y1="214" x2="1530" y2="214" stroke="#475569" stroke-width="1"/>
+  <text x="1395" y="234" font-family="monospace" font-size="9.5" fill="#e2e8f0">Amphenol 132134-11</text>
+  <text x="1395" y="252" font-family="monospace" font-size="9.5" fill="#38bdf8">Sub-GHz/2.4GHz Whip #0</text>
+  <text x="1395" y="270" font-family="monospace" font-size="9" fill="#34d399">Zero Switch Loss (0 dB)</text>
+  <text x="1395" y="288" font-family="monospace" font-size="9" fill="#cbd5e1">100% Continuous BFT</text>
+  <text x="1395" y="306" font-family="monospace" font-size="9" fill="#cbd5e1">Consensus &amp; Backhaul</text>
+
+  <!-- ===================================================================== -->
+  <!-- ZONE 5 (BOTTOM-RIGHT): SHIELD SH2 — RADIO 1 + DEDICATED ANT1 SMA (J3) -->
+  <!-- ===================================================================== -->
+  <rect x="932" y="472" width="626" height="372" rx="6" fill="#2e1065" fill-opacity="0.35" stroke="#c084fc" stroke-width="2" stroke-dasharray="8,4"/>
+  <text x="946" y="494" font-family="monospace" font-size="13" font-weight="bold" fill="#c084fc">4. SHIELD SH2: RADIO 1 (U3 LR2021 • SUB-GHz &amp; 2.4GHz) → DEDICATED J3 ANT1 SMA</text>
+
+  <!-- SPI3 Bus Lines from U1 to U3 -->
+  <line x1="908" y1="665" x2="950" y2="665" stroke="#c084fc" stroke-width="3"/>
+
+  <!-- U3: Semtech LR2021 #1 -->
+  <rect x="950" y="512" width="215" height="230" rx="5" fill="#1e293b" stroke="#c084fc" stroke-width="2"/>
+  <text x="1057" y="534" font-family="monospace" font-size="12" font-weight="bold" fill="#c084fc" text-anchor="middle">U3: SEMTECH LR2021IMLTRT</text>
+  <text x="1057" y="550" font-family="monospace" font-size="9.5" fill="#cbd5e1" text-anchor="middle">VQFN-32 (5x5mm) • Parallel Radio 1</text>
+  <text x="960" y="573" font-family="monospace" font-size="9.5" fill="#e2e8f0">Pin 19..22: SPI3 (NSS/SCK/MOSI/MISO)</text>
+  <text x="960" y="591" font-family="monospace" font-size="9.5" fill="#fde68a">Pin 16: BUSY   → GPIO39</text>
+  <text x="960" y="609" font-family="monospace" font-size="9.5" fill="#34d399">Pin 14: DIO9   → GPIO40 (IRQ1)</text>
+  <text x="960" y="627" font-family="monospace" font-size="9.5" fill="#f43f5e">Pin 15: NRESET ← GPIO41</text>
+  <text x="960" y="645" font-family="monospace" font-size="9.5" fill="#c084fc">Pin 28: VBAT_RF ← +3V3_RF1 (FB3)</text>
+  <text x="960" y="663" font-family="monospace" font-size="9.5" fill="#cbd5e1">Pin 9:  DC-DC_SW → L3 (12nH Murata)</text>
+  <text x="960" y="681" font-family="monospace" font-size="9.5" fill="#fde68a">Pin 24: XTA ← Y2 32.000MHz ±0.5ppm</text>
+  <text x="960" y="699" font-family="monospace" font-size="9.5" fill="#34d399">Pin 1..4: LF (Sub-GHz) + HF (2.4GHz)</text>
+  <text x="960" y="717" font-family="monospace" font-size="9.5" fill="#94a3b8">ToF Ranging Engine: ±1.5m Precision</text>
+
+  <!-- Y2 TCXO Box -->
+  <rect x="950" y="755" width="215" height="72" rx="4" fill="#0f172a" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="960" y="775" font-family="monospace" font-size="10.5" font-weight="bold" fill="#fbbf24">Y2: NT2016SA-32.000000MHZ-NBG2</text>
+  <text x="960" y="791" font-family="monospace" font-size="9.5" fill="#cbd5e1">32.000 MHz ±0.5ppm TCXO (SMD-2016)</text>
+  <text x="960" y="807" font-family="monospace" font-size="9" fill="#94a3b8">Independent Clock for Zero Pulling</text>
+
+  <!-- RF1 Pi-Match + Diplexer FL2 -->
+  <line x1="1165" y1="620" x2="1190" y2="620" stroke="#c084fc" stroke-width="2.5"/>
+  <rect x="1190" y="525" width="165" height="190" rx="4" fill="#0f172a" stroke="#c084fc" stroke-width="1.6"/>
+  <text x="1272" y="547" font-family="monospace" font-size="10.5" font-weight="bold" fill="#c084fc" text-anchor="middle">RF1 MATCH &amp; DIPLEX</text>
+  <text x="1200" y="567" font-family="monospace" font-size="9.5" fill="#e2e8f0">• L4: 12nH, L6: 6.8nH</text>
+  <text x="1200" y="585" font-family="monospace" font-size="9.5" fill="#e2e8f0">• C5..C8: 3.3pF C0G 0402</text>
+  <text x="1200" y="603" font-family="monospace" font-size="9.5" fill="#34d399">• FL2: LFD18868MDP2B</text>
+  <text x="1200" y="621" font-family="monospace" font-size="9" fill="#cbd5e1">  Sub-GHz + 2.4GHz Diplex</text>
+  <text x="1200" y="639" font-family="monospace" font-size="9" fill="#fde68a">• SH1/SH2 Isolation &gt;55dB</text>
+  <text x="1200" y="657" font-family="monospace" font-size="9" fill="#c084fc">• Z0 = 50.0Ω ±5% CPWG</text>
+  <text x="1200" y="675" font-family="monospace" font-size="9" fill="#94a3b8">• D3: RClamp0521P 0.3pF</text>
+  <text x="1200" y="693" font-family="monospace" font-size="9" fill="#fde68a">• Parallel TX/RX w/ RF0</text>
+
+  <!-- J3: Dedicated ANT1 SMA Bulkhead for Radio 1 -->
+  <line x1="1355" y1="620" x2="1385" y2="620" stroke="#ef4444" stroke-width="3.5"/>
+  <rect x="1385" y="540" width="155" height="160" rx="4" fill="#1e293b" stroke="#fbbf24" stroke-width="2.2"/>
+  <text x="1462" y="564" font-family="monospace" font-size="11.5" font-weight="bold" fill="#fbbf24" text-anchor="middle">J3: ANT1 SMA-50Ω</text>
+  <text x="1462" y="582" font-family="monospace" font-size="9.5" fill="#c084fc" text-anchor="middle">DEDICATED RADIO 1 PORT</text>
+  <line x1="1395" y1="594" x2="1530" y2="594" stroke="#475569" stroke-width="1"/>
+  <text x="1395" y="614" font-family="monospace" font-size="9.5" fill="#e2e8f0">Amphenol 132134-11</text>
+  <text x="1395" y="632" font-family="monospace" font-size="9.5" fill="#c084fc">Sub-GHz/2.4GHz Whip #1</text>
+  <text x="1395" y="650" font-family="monospace" font-size="9" fill="#34d399">Full-Duplex Parallel RF</text>
+  <text x="1395" y="668" font-family="monospace" font-size="9" fill="#cbd5e1">Simultaneous Client LBT,</text>
+  <text x="1395" y="686" font-family="monospace" font-size="9" fill="#cbd5e1">Discovery &amp; ToF Ranging</text>
+
+  <!-- ===================================================================== -->
+  <!-- ANSI / IPC ENGINEERING TITLE BLOCK (BOTTOM-CENTER/RIGHT)              -->
+  <!-- ===================================================================== -->
+  <rect x="528" y="858" width="1030" height="98" rx="4" fill="#0f172a" stroke="#38bdf8" stroke-width="1.8"/>
+  <line x1="920" y1="858" x2="920" y2="956" stroke="#475569" stroke-width="1.2"/>
+  <line x1="1270" y1="858" x2="1270" y2="956" stroke="#475569" stroke-width="1.2"/>
+
+  <text x="542" y="880" font-family="monospace" font-size="12" font-weight="bold" fill="#38bdf8">TITLE: LEXICON DUAL-RF USB RADIO DONGLE (RETAIL REV 2.0)</text>
+  <text x="542" y="900" font-family="monospace" font-size="10" fill="#cbd5e1">DESIGN ID: LEX-DRF-PCBA-R2.0 • 1× USB-C + 2× SMA ANTENNA PORTS</text>
+  <text x="542" y="918" font-family="monospace" font-size="10" fill="#34d399">ARCHITECTURE: 2× PARALLEL SEMTECH LR2021 + ESP32-S3-N16R8</text>
+  <text x="542" y="936" font-family="monospace" font-size="10" fill="#fde68a">ISOLATION: &gt;55 dB Dual Shield Cans + Independent J2/J3 SMA Feeds</text>
+
+  <text x="935" y="880" font-family="monospace" font-size="11" font-weight="bold" fill="#fbbf24">IMPEDANCE &amp; STACKUP SPECS</text>
+  <text x="935" y="898" font-family="monospace" font-size="9.5" fill="#cbd5e1">• Stackup: JLC06161H-3313 (6-Layer 1.60mm)</text>
+  <text x="935" y="914" font-family="monospace" font-size="9.5" fill="#cbd5e1">• RF0 &amp; RF1: 50.0Ω ±5% CPWG (W=0.23/G=0.15)</text>
+  <text x="935" y="930" font-family="monospace" font-size="9.5" fill="#cbd5e1">• USB 2.0: 90.0Ω ±10% Diff (W=0.22/S=0.15)</text>
+  <text x="935" y="946" font-family="monospace" font-size="9.5" fill="#34d399">• Surface Finish: 2µ&quot; ENIG Immersion Gold</text>
+
+  <text x="1285" y="880" font-family="monospace" font-size="11" font-weight="bold" fill="#34d399">UNIT ECONOMICS SUMMARY</text>
+  <text x="1285" y="898" font-family="monospace" font-size="9.5" fill="#e2e8f0">• Bare 6L PCB (10k): $0.95 / unit</text>
+  <text x="1285" y="914" font-family="monospace" font-size="9.5" fill="#e2e8f0">• Electronic BOM (10k): $18.82 / unit</text>
+  <text x="1285" y="930" font-family="monospace" font-size="9.5" fill="#fde68a">• 5-Yr Blended COGS + 3PL: $46.74 / unit</text>
+  <text x="1285" y="946" font-family="monospace" font-size="9.5" font-weight="bold" fill="#38bdf8">• Retail MSRP: $178 ($119 KS Early-Bird)</text>
+</svg>

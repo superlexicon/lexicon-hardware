@@ -1,0 +1,31 @@
+From e30a9ea38831a2a9edb41d3c742b1cefb84685b9 Mon Sep 17 00:00:00 2001
+From: Mano Thanabalan <mano.thanabalan@gmail.com>
+Date: Thu, 27 Aug 2026 11:52:38 +0800
+Subject: [PATCH 2/2] lr20xx: document why EDGE (not LEVEL) triggering is kept
+
+LEVEL_ACTIVE broke IRQ delivery entirely on nRF54L15 GPIOTE (bench
+2026-08-26: zero RX across all nodes). Lost edges are recovered by
+the firmware's BURST_TX watchdog resuscitation in main.c instead.
+---
+ drivers/usp/lr20xx/lr20xx_board.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/usp/lr20xx/lr20xx_board.c b/drivers/usp/lr20xx/lr20xx_board.c
+index 7b10f2d..669fee9 100644
+--- a/drivers/usp/lr20xx/lr20xx_board.c
++++ b/drivers/usp/lr20xx/lr20xx_board.c
+@@ -128,6 +128,11 @@ void lora_transceiver_board_enable_interrupt( const struct device* dev )
+ 
+         if( dio_config.function == LR20XX_SYSTEM_DIO_FUNC_IRQ )
+         {
++            /* Keep EDGE triggering: LEVEL_ACTIVE broke interrupt delivery
++             * entirely on the nRF54L15 GPIOTE path (bench 2026-08-25:
++             * zero RX across all nodes within minutes). Lost edges are
++             * instead recovered by the firmware's BURST_TX watchdog
++             * (main.c) which aborts and retries the transaction. */
+             gpio_pin_interrupt_configure_dt( &config->dios_config[i].gpio, GPIO_INT_EDGE_TO_ACTIVE );
+         }
+     }
+-- 
+2.55.0
+

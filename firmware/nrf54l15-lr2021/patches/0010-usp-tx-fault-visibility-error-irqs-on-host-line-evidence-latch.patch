@@ -1,0 +1,123 @@
+From 0c4b5ab97c29f0dcc14cd3fa24f08df74227d580 Mon Sep 17 00:00:00 2001
+From: Mano Thanabalan <mano@superlexicon.dev>
+Date: Sun, 6 Sep 2026 11:31:23 +0800
+Subject: [PATCH] =?UTF-8?q?smtc=5Frac=5Fflrc=5Fburst:=20make=20chip=20TX?=
+ =?UTF-8?q?=20faults=20visible=20=E2=80=94=20ERROR=20IRQs=20on=20the=20hos?=
+ =?UTF-8?q?t=20line=20+=20evidence=20latch?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Second-audit finding (SuperLexicon 2026-09-06): the TX launch masked
+DIO8 to TX_TIMESTAMP only, so a launch that failed ON THE CHIP
+(mode-change conflict, PLL, PA) asserted no host-visible edge — the
+failure surfaced as an unexplained 2.3s timeout and every abort flushed
+the pending ERROR/CMD_ERROR bits unread. With CONFIG_LOG off the
+failure was recoverable but structurally undiagnosable (~160 silent
+events on one bench node).
+
+- TX launch DIO mask now includes RAL_IRQ_ERROR | RAL_IRQ_CMD_ERROR:
+  chip faults assert the host line in milliseconds and route to the
+  existing ERROR branch (reads the chip error register, aborts clean).
+- Launch clears latched chip errors first, so stale boot-time calib
+  bits cannot abort healthy bursts.
+- An UNLOCK with zero packets aired latches the chip error register
+  into a getter (smtc_rac_flrc_burst_get_tx_fail_evidence) — the host
+  reads it after the 'E' terminal and names the mechanism.
+---
+ smtc_rac_lib/smtc_rac/smtc_rac.h            |  6 +++
+ smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c | 49 ++++++++++++++++++++-
+ 2 files changed, 54 insertions(+), 1 deletion(-)
+
+diff --git a/smtc_rac_lib/smtc_rac/smtc_rac.h b/smtc_rac_lib/smtc_rac/smtc_rac.h
+index e95ba2f..cfdf5ee 100644
+--- a/smtc_rac_lib/smtc_rac/smtc_rac.h
++++ b/smtc_rac_lib/smtc_rac/smtc_rac.h
+@@ -589,6 +589,12 @@ smtc_rac_return_code_t smtc_rac_release_active_time_out( uint8_t radio_access_id
+ }
+ #endif
+ 
++
++/* SuperLexicon (2026-09-06): evidence from the last FLRC burst TX that
++ * ended with zero packets aired — the chip error register latched at the
++ * failure. Reading consumes the valid flag. */
++void smtc_rac_flrc_burst_get_tx_fail_evidence( uint32_t* ms, uint16_t* chip_errors, bool* valid );
++
+ #endif  // SMTC_RAC_H
+ 
+ /*
+diff --git a/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c b/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c
+index b995097..45f0be6 100644
+--- a/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c
++++ b/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c
+@@ -572,11 +572,47 @@ static void read_rx_fifo_payload( uint16_t read_n_bytes )
+     smtc_rac_flrc_rx_fragmented_data.rx_fifo_payload_index += read_n_bytes;
+ }
+ 
++/* Last failed-TX evidence for the host (SuperLexicon 2026-09-06): the
++ * chip error register at the moment a TX ended with zero packets aired.
++ * The host polls this after an 'E' terminal — with CONFIG_LOG compiled
++ * out this is the only path that names the mechanism. */
++static struct
++{
++    uint32_t ms;
++    uint16_t chip_errors;
++    bool     valid;
++} tx_fail_evidence = { 0, 0, false };
++
++void smtc_rac_flrc_burst_get_tx_fail_evidence( uint32_t* ms, uint16_t* chip_errors, bool* valid )
++{
++    *ms          = tx_fail_evidence.ms;
++    *chip_errors = tx_fail_evidence.chip_errors;
++    *valid       = tx_fail_evidence.valid;
++    tx_fail_evidence.valid = false;
++}
++
+ static void smtc_rac_flrc_post_tx_callback( rp_status_t status )
+ {
+     radio_planner_t*    rp                                  = smtc_rac_get_rp( );
+     smtc_rac_context_t* rac_config                          = smtc_rac_get_context( rp->radio_task_id );
+     rac_config->smtc_rac_data_result.radio_end_timestamp_ms = rp->irq_timestamp_ms[rp->radio_task_id];
++    if( status == RP_STATUS_RADIO_UNLOCKED )
++    {
++        // EVIDENCE PRESERVATION (SuperLexicon 2026-09-06): an UNLOCK with
++        // zero packets aired means the launch failed on the chip. The
++        // abort path flushed the IRQ bits, but the chip ERRORS register
++        // is a separate latch — read it here, before the next launch
++        // clears it, and expose it to the app.
++        uint16_t chip_errors = 0;
++        ( void ) lr20xx_system_get_errors( rp->radio->ral.context, &chip_errors );
++        if( chip_errors != 0 )
++        {
++            RAC_LOG_ERROR( "rac flrc: TX launch failed with chip errors 0x%04X\n", chip_errors );
++        }
++        tx_fail_evidence.ms          = smtc_modem_hal_get_time_in_ms( );
++        tx_fail_evidence.chip_errors = chip_errors;
++        tx_fail_evidence.valid       = true;
++    }
+     if( status == RP_STATUS_RADIO_LOCKED )
+     {
+         ral_irq_t radio_irq = RAL_IRQ_NONE;
+@@ -811,7 +847,18 @@ static void smtc_rac_flrc_tx_callback( void* rp_void )
+         RAC_LOG_INFO( "FLRC-BURST: flushed stale IRQ 0x%04X before TX launch\n", stale_irq );
+     }
+ 
+-    ral_irq_t irq = RAL_IRQ_TX_TIMESTAMP;
++    // MAP CHIP ERROR IRQs ONTO THE HOST LINE (SuperLexicon 2026-09-06):
++    // masked to TX_TIMESTAMP only, a TX launch that failed on the chip
++    // (mode-change conflict, PLL, PA) asserted no host-visible edge —
++    // the failure surfaced as an unexplained timeout and every abort
++    // flushed the evidence unread. ERROR/CMD_ERROR route to the ERROR
++    // branch in the post callback, which reads the chip error register
++    // and aborts in milliseconds. clear_errors keeps LATCHED boot-time
++    // calib bits from aborting healthy bursts (any mid-TX ERROR is then
++    // a fresh fault).
++    ( void ) lr20xx_system_clear_errors( rp->radio->ral.context );
++
++    ral_irq_t irq = RAL_IRQ_TX_TIMESTAMP | RAL_IRQ_ERROR | RAL_IRQ_CMD_ERROR;
+ 
+     SMTC_MODEM_HAL_PANIC_ON_FAILURE( ral_set_dio_irq_params( &( rp->radio->ral ), irq ) == RAL_STATUS_OK );
+     ral_clear_tx_fifo( &rp->radio->ral );
+-- 
+2.55.0
+

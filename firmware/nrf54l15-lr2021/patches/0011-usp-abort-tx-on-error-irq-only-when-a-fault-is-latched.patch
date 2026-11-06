@@ -1,0 +1,70 @@
+From b1d5c414a8f229b68e295dcbd905fdff705ce3dc Mon Sep 17 00:00:00 2001
+From: Mano Thanabalan <mano@superlexicon.dev>
+Date: Sun, 6 Sep 2026 11:48:30 +0800
+Subject: [PATCH] smtc_rac_flrc_burst: abort TX on ERROR IRQ only when a fault
+ is latched
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+With ERROR/CMD_ERROR mapped onto the host line (0010), the RX->TX
+cut-over race surfaced immediately: the abort command collides with the
+chip's mode change, latching a bare CMD_ERROR with a CLEAN error
+register, and the unconditional ERROR-branch abort killed every vote TX
+22ms after launch (bench 2026-09-06: all 377B votes failed, errors
+register 0x0000, on every node, every window). The branch now aborts
+only when the chip error register latches a real fault; a clean-register
+CMD_ERROR falls through — the burst either launched (TX_TIMESTAMP
+arrives) or the planner timeout bounds it with an honest terminal.
+---
+ smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c | 27 +++++++++++++++------
+ 1 file changed, 19 insertions(+), 8 deletions(-)
+
+diff --git a/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c b/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c
+index 45f0be6..5be19cb 100644
+--- a/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c
++++ b/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c
+@@ -627,21 +627,32 @@ static void smtc_rac_flrc_post_tx_callback( rp_status_t status )
+         // 2026-09-01, TX-LATENCY 20525ms spikes).
+         SMTC_MODEM_HAL_PANIC_ON_FAILURE( ral_get_and_clear_irq_status( &rp->radio->ral, &radio_irq ) == RAL_STATUS_OK );
+ 
+-        if( ( radio_irq & RAL_IRQ_ERROR ) == RAL_IRQ_ERROR )
++        if( ( radio_irq & ( RAL_IRQ_ERROR | RAL_IRQ_CMD_ERROR ) ) != RAL_IRQ_NONE )
+         {
+-            // The chip raised an ERROR interrupt (PLL lock, chip-busy
+-            // overrun, ...): read and clear the error registers, then
+-            // fail this burst cleanly instead of pretending packets
+-            // were sent.
++            // The chip raised an ERROR/CMD_ERROR interrupt: read and
++            // clear the error register, then abort ONLY on a real
++            // latched fault (PLL, XOSC, PA...). A bare CMD_ERROR with a
++            // clean register is the RX->TX cut-over race — the abort
++            // command collided with the chip's mode change — and must
++            // NOT kill the fresh burst: with ERROR mapped onto the host
++            // line (0008/0010) that race fired on every vote window and
++            // the unconditional abort turned it into a per-vote stall
++            // (SuperLexicon bench 2026-09-06: every 377B vote TX died
++            // 22ms after launch, errors register 0x0000).
+             uint16_t errors = 0;
+             lr20xx_system_get_errors( rp->radio->ral.context, &errors );
+-            RAC_LOG_ERROR( "rac flrc: TX Error %x \n", errors );
++            RAC_LOG_ERROR( "rac flrc: TX IRQ Error irq=%04x chip=%04x \n",
++                           ( unsigned ) radio_irq, ( unsigned ) errors );
+             if( errors != 0 )
+             {
+                 lr20xx_system_clear_errors( rp->radio->ral.context );
++                smtc_rac_abort_radio_submit( rp->radio_task_id );
++                return;
+             }
+-            smtc_rac_abort_radio_submit( rp->radio_task_id );
+-            return;
++            // Clean register: transient command race. The TX either
++            // launched (TX_TIMESTAMP will arrive) or the planner
++            // timeout bounds it — either way the host gets an honest
++            // terminal.
+         }
+ 
+         if( ( radio_irq & ( RAL_IRQ_TX_TIMESTAMP | RAL_IRQ_TX_DONE ) ) == RAL_IRQ_NONE )
+-- 
+2.55.0
+

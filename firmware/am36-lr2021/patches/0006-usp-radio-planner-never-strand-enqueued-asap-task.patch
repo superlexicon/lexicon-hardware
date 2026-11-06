@@ -1,0 +1,77 @@
+From 9eaff578d8ac1e1888a064bd1ef8ca3b44517dbf Mon Sep 17 00:00:00 2001
+From: Mano Thanabalan <mano.thanabalan@gmail.com>
+Date: Wed, 2 Sep 2026 11:15:34 +0800
+Subject: [PATCH] =?UTF-8?q?radio=5Fplanner:=20never=20strand=20an=20enqueu?=
+ =?UTF-8?q?ed=20ASAP=20task=20=E2=80=94=20clamp=20past-due=20starts,=20fix?=
+ =?UTF-8?q?=20rank/hook=20index=20clobber?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Two defects could silently drop a registered task, stranding the submit
+that enqueued it (bench 2026-09-02: TX submit returned OK, the chip never
+left standby, the task was later released with zero packets aired, and the
+host TX watchdog burned its full retry budget on the wedged slot before an
+MCU cold reset was the only escape):
+
+1. rp_task_arbiter aborted a high-priority ASAP task whose start_time had
+   slipped into the past (delay < 0). ASAP means 'as soon as possible' —
+   the start is now clamped and the task launches; only SCHEDULED tasks
+   (genuinely stale work) keep the abort.
+
+2. rp_task_select_next's low-priority ASAP delay loop wrote
+   rp->tasks[i].start_time_ms using the RANKING POSITION i instead of the
+   hook id rankings[i] — whenever the ranking vector was not the identity
+   map, the start_time of an unrelated registered task was clobbered,
+   corrupting its schedule and feeding defect 1.
+---
+ .../radio_planner/src/radio_planner.c         | 26 +++++++++++++++++--
+ 1 file changed, 24 insertions(+), 2 deletions(-)
+
+diff --git a/smtc_rac_lib/radio_planner/src/radio_planner.c b/smtc_rac_lib/radio_planner/src/radio_planner.c
+index 48cd248..af70c88 100644
+--- a/smtc_rac_lib/radio_planner/src/radio_planner.c
++++ b/smtc_rac_lib/radio_planner/src/radio_planner.c
+@@ -799,7 +799,23 @@ static void rp_task_arbiter( radio_planner_t* rp, const char* caller_func_name )
+         // Case where the high priority task is in the past, error case
+         if( delay < 0 )
+         {  // The high priority task is in the past, error case
+-            if( rp->priority_task.state != RP_TASK_STATE_RUNNING )
++            if( rp->priority_task.state == RP_TASK_STATE_ASAP )
++            {
++                // SuperLexicon patch 0006: an ASAP task whose start_time
++                // slipped into the past must be CLAMPED and launched, not
++                // silently aborted — ASAP means "as soon as possible", and
++                // dropping the task here strands the submit that enqueued
++                // it: the submitter waits on a transaction the planner
++                // will never run (bench 2026-09-02: TX submit OK, chip
++                // never left standby, task released with zero packets
++                // aired — the host TX watchdog then burned its whole
++                // retry budget on a wedged slot). SCHEDULED tasks keep
++                // the abort: they are genuinely stale work.
++                rp->tasks[rp->priority_task.hook_id].start_time_ms = now;
++                rp->priority_task.start_time_ms                    = now;
++                delay                                              = 0;
++            }
++            else if( rp->priority_task.state != RP_TASK_STATE_RUNNING )
+             {
+                 rp->stats.rp_error++;
+                 SMTC_MODEM_HAL_RP_TRACE_PRINTF( " RP: ERROR - delay #%d - hook #%d\n", delay,
+@@ -1170,7 +1186,13 @@ static uint8_t rp_task_select_next( radio_planner_t* rp, const uint32_t now )
+         rank = rp->rankings[i];
+         if( rp->tasks[rank].state == RP_TASK_STATE_ASAP )
+         {
+-            rp->tasks[i].start_time_ms = hook_time_to_exe_tmp;
++            // SuperLexicon patch 0006: index the task by RANK (the hook id
++            // at this ranking position), not by the loop index — the old
++            // `rp->tasks[i]` clobbered the start_time of an UNRELATED
++            // registered task whenever the ranking vector was not the
++            // identity map (multiple tasks registered), corrupting its
++            // schedule and feeding the arbiter's past-task abort.
++            rp->tasks[rank].start_time_ms = hook_time_to_exe_tmp;
+         }
+     }
+     return RP_SOMETHING_TO_DO;
+-- 
+2.55.0
+

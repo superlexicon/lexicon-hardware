@@ -1,0 +1,41 @@
+From 3559b0a4bb89b10f8fa87e9769c6ca0a2b149d25 Mon Sep 17 00:00:00 2001
+From: Mano Thanabalan <mano@superlexicon.dev>
+Date: Sat, 5 Sep 2026 23:37:52 +0800
+Subject: [PATCH] =?UTF-8?q?smtc=5Frac=5Fflrc=5Fburst:=20fix=20the=20no-op?=
+ =?UTF-8?q?=20over-send=20guard=20=E2=80=94=20end=20the=20burst=20instead?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+SMTC_MODEM_HAL_PANIC_ON_FAILURE was called with a string literal where
+the macro expects a condition, so the over-sent guard never fired: a
+burst whose byte counter passed burst_tx_size kept re-filling and
+re-airing stale FIFO buffers until the counter caught up — corrupt
+trailing packets on air. End the burst via unlock instead; the host
+sees the truncation and retries.
+---
+ smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c b/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c
+index ea99977..b995097 100644
+--- a/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c
++++ b/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c
+@@ -626,7 +626,13 @@ static void smtc_rac_flrc_post_tx_callback( rp_status_t status )
+             else if( rac_config->radio_params.flrc_burst.burst_tx_size <
+                      smtc_rac_flrc_tx_fragmented_data.tx_nb_bytes_sent )
+             {
+-                SMTC_MODEM_HAL_PANIC_ON_FAILURE( "RAC FLRC BURST: sent more bytes than expected" );
++                /* The macro form here was a no-op (string literal where
++                 * a condition belongs): over-sent bursts silently kept
++                 * re-filling the FIFO. End the burst instead — the host
++                 * sees the truncation and retries. */
++                RAC_LOG_ERROR( "RAC FLRC BURST: sent more bytes than expected — ending burst\n" );
++                smtc_rac_unlock_radio_access( rp->radio_task_id );
++                return;
+             }
+             else
+             {
+-- 
+2.55.0
+

@@ -1,0 +1,61 @@
+From 470b41a0cb532ac3d422d99a9a5e961361863a22 Mon Sep 17 00:00:00 2001
+From: Mano Thanabalan <mano.thanabalan@gmail.com>
+Date: Wed, 2 Sep 2026 15:09:10 +0800
+Subject: [PATCH] radio_planner: stop the TCXO only when no task is running
+ after the arbiter
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Both post-dispatch arbiter calls (the general path's post-callback
+arbiter and the no-task branch added in the earlier patch) can LAUNCH a
+task — the launch callbacks re-start the TCXO and configure the chip.
+The unconditional smtc_modem_hal_stop_radio_tcxo() at the tail of
+rp_callback then immediately killed that clock: the chip stayed in RX
+MODE WITH A DEAD OSCILLATOR — status reads reported RX while the chip
+demodulated nothing (bench 2026-09-02: hwrx frozen 10-58s spans every
+1-2 minutes, nodes voting alone in 1/3 tallies while peers heard their
+votes; hearing resumed only after the next SPI activity nudged the
+chip). Whether a re-arm launched via the enqueue-inline arbiter (TCXO
+kept, worked) or via a dispatch arbiter (TCXO killed, deaf) depended on
+flag timing — hence the alternating deaf/hearing windows.
+
+Now the TCXO/ant-switch shutdown only runs when no task is RUNNING
+after the arbiter; the stop still happens on the dispatch that later
+ends that task.
+---
+ smtc_rac_lib/radio_planner/src/radio_planner.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
+
+diff --git a/smtc_rac_lib/radio_planner/src/radio_planner.c b/smtc_rac_lib/radio_planner/src/radio_planner.c
+index af70c88..89c1973 100644
+--- a/smtc_rac_lib/radio_planner/src/radio_planner.c
++++ b/smtc_rac_lib/radio_planner/src/radio_planner.c
+@@ -603,9 +603,21 @@ void rp_callback( radio_planner_t* rp )
+             rp_task_arbiter( rp, __func__ );
+         }
+ 
+-        smtc_modem_hal_set_ant_switch( false );
+-        // Shut Down the TCXO
+-        smtc_modem_hal_stop_radio_tcxo( );
++        // SuperLexicon patch 0007: shut the TCXO down ONLY when no task is
++        // running. Both arbiter calls above (the general path's post-callback
++        // arbiter and this no-task branch) can LAUNCH a task whose launch
++        // callbacks re-start the TCXO and put the chip in RX — the
++        // unconditional stop immediately after killed that clock, leaving
++        // the chip IN RX MODE WITH A DEAD OSCILLATOR: status reads RX,
++        // hwrx frozen, the node deaf for tens of seconds until the next
++        // SPI activity nudged it (bench 2026-09-02: hwrx=0 spans of 10-58s
++        // every ~1-2 min, one consensus window lost per incident).
++        if( rp->tasks[rp->radio_task_id].state != RP_TASK_STATE_RUNNING )
++        {
++            smtc_modem_hal_set_ant_switch( false );
++            // Shut Down the TCXO
++            smtc_modem_hal_stop_radio_tcxo( );
++        }
+     }
+ }
+ 
+-- 
+2.55.0
+

@@ -1,0 +1,145 @@
+From e61119f8b86a2c8553a7cb01b32d7b1ee41dbc3c Mon Sep 17 00:00:00 2001
+From: Mano Thanabalan <mano@superlexicon.dev>
+Date: Sat, 5 Sep 2026 22:22:06 +0800
+Subject: [PATCH] smtc_rac: arm the TX burst timeout, flush stale chip IRQ at
+ launch and abort
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Three halves of the stuck-DIO wedge/deaf class (SuperLexicon bench
+2026-09-05: submits with zero completions, 11 TX_WATCHDOG wedges in 80
+minutes, RF-mute until host MCU reset):
+
+1. smtc_rac_flrc_burst: the TX branch never armed
+   smtc_rac_set_active_time_out — the RP_FAILSAFE explicitly excludes
+   LOCK tasks, so a TX whose completion IRQ never arrived wedged the
+   task permanently. Arm it with the same ToA+interframe+margin+10%
+   formula the RX branch uses.
+
+2. smtc_rac_flrc_burst: an IRQ pending from an aborted predecessor
+   keeps the DIO line asserted; the launch re-masks the DIO for TX/RX
+   and an edge-triggered host input on an already-high line never
+   fires again. Read-and-clear the chip IRQ status at every TX and RX
+   launch so each start begins from a deasserted DIO.
+
+3. radio_planner: rp_task_abort converts a RUNNING LOCK task to UNLOCK
+   and raises a fake soft IRQ; the UNLOCK short-circuit in
+   rp_irq_get_status never services the chip. A real radio IRQ pending
+   at abort time kept the DIO asserted with no consumer. Read-and-
+   clear it in the abort path; the aborted task's event is
+   deliberately discarded.
+---
+ .../radio_planner/src/radio_planner.c         | 16 ++++++
+ smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c   | 49 +++++++++++++++++++
+ 2 files changed, 65 insertions(+)
+
+diff --git a/smtc_rac_lib/radio_planner/src/radio_planner.c b/smtc_rac_lib/radio_planner/src/radio_planner.c
+index 89c1973..7b1a2f4 100644
+--- a/smtc_rac_lib/radio_planner/src/radio_planner.c
++++ b/smtc_rac_lib/radio_planner/src/radio_planner.c
+@@ -412,6 +412,22 @@ rp_hook_status_t rp_task_abort( radio_planner_t* rp, const uint8_t hook_id )
+ #endif
+         if( rp->tasks[hook_id].type == RP_TASK_TYPE_LOCK_RADIO_ACCESS )
+         {
++            // FLUSH PENDING CHIP IRQ (SuperLexicon 2026-09-05): the fake
++            // soft IRQ below delivers RP_STATUS_RADIO_UNLOCKED, whose
++            // short-circuit in rp_irq_get_status never services the chip.
++            // A real radio IRQ pending at abort time would keep the DIO
++            // line asserted with no consumer — the stuck-DIO wedge/deaf
++            // state on an edge-triggered IRQ input. Read-and-clear it;
++            // the aborted task's event is deliberately discarded.
++            ral_irq_t aborted_irq = 0;
++            if( ral_get_and_clear_irq_status( TARGET_RAL_FOR_HOOK_ID, &aborted_irq ) != RAL_STATUS_OK )
++            {
++                SMTC_MODEM_HAL_PANIC( );
++            }
++            if( aborted_irq != 0 )
++            {
++                SMTC_MODEM_HAL_RP_TRACE_PRINTF( "RP: abort flushed pending radio IRQ 0x%04X\n", aborted_irq );
++            }
+             rp->tasks[hook_id].type = RP_TASK_TYPE_UNLOCK_RADIO_ACCESS;
+         }
+         rp->radio_irq_flag                      = true;  // Fake soft IRQ to call user callback
+diff --git a/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c b/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c
+index afa4c65..ea99977 100644
+--- a/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c
++++ b/smtc_rac_lib/smtc_rac/smtc_rac_flrc_burst.c
+@@ -271,11 +271,27 @@ smtc_rac_return_code_t smtc_rac_flrc_burst( uint8_t radio_access_id )
+         // TODO: this TOA does not include the interframe frame time
+         time_on_air_us *= ceil_div( rac_config->radio_params.flrc_burst.burst_tx_size,
+                                     flrc_burst_rp_radio_params.tx.flrc.pkt_params.pld_len_in_bytes );
++        uint32_t nb_packets = ceil_div( rac_config->radio_params.flrc_burst.burst_tx_size,
++                                        flrc_burst_rp_radio_params.tx.flrc.pkt_params.pld_len_in_bytes );
+ 
+         rac_config->scheduler_config.callback_pre_radio_transaction  = smtc_rac_flrc_tx_rac_lock_callback;
+         rac_config->scheduler_config.callback_post_radio_transaction = smtc_rac_flrc_post_tx_callback;
+         rac_config->scheduler_config.duration_time_ms                = time_on_air_us / 1000;
+ 
++        // Arm the planner timeout for the TX burst too (mirror of the RX
++        // branch below): the RP_FAILSAFE explicitly excludes LOCK tasks,
++        // so a TX whose completion IRQ never arrived previously wedged
++        // the task permanently — the radio sat wedged until the host's
++        // MCU reset (SuperLexicon bench 2026-09-05: submissions with
++        // zero completions, 11 wedges in 80 minutes).
++        {
++            uint32_t tx_interframes_duration_us =
++                ( ( nb_packets - 1 ) * rac_config->radio_params.flrc_burst.min_interframe_delay_us );
++            time_on_air_us = ( time_on_air_us + tx_interframes_duration_us ) / 1000 +
++                             rac_config->radio_params.flrc_burst.rx_burst_timeout_margin_ms;
++            time_on_air_us = time_on_air_us + ( time_on_air_us * 10 ) / 100;
++            smtc_rac_set_active_time_out( radio_access_id, time_on_air_us );
++        }
+         rac_return_code = smtc_rac_lock_radio_access( radio_access_id, rac_config->scheduler_config );
+     }
+     else
+@@ -772,6 +788,23 @@ static void smtc_rac_flrc_tx_callback( void* rp_void )
+ 
+     SMTC_MODEM_HAL_PANIC_ON_FAILURE( ralf_setup_flrc( rp->radio, &flrc_burst_rp_radio_params.tx.flrc ) ==
+                                      RAL_STATUS_OK );
++
++    // FLUSH STALE CHIP IRQ (SuperLexicon 2026-09-05): an IRQ pending from
++    // an aborted predecessor leaves the DIO line asserted; the launch
++    // below re-masks the DIO for TX and an edge-triggered input on an
++    // already-high line never fires again — the stuck-DIO wedge/deaf
++    // state. Read-and-clear here so every launch starts from a
++    // deasserted DIO.
++    ral_irq_t stale_irq = RAL_IRQ_NONE;
++    if( ral_get_and_clear_irq_status( &( rp->radio->ral ), &stale_irq ) != RAL_STATUS_OK )
++    {
++        SMTC_MODEM_HAL_PANIC( );
++    }
++    if( stale_irq != RAL_IRQ_NONE )
++    {
++        RAC_LOG_INFO( "FLRC-BURST: flushed stale IRQ 0x%04X before TX launch\n", stale_irq );
++    }
++
+     ral_irq_t irq = RAL_IRQ_TX_TIMESTAMP;
+ 
+     SMTC_MODEM_HAL_PANIC_ON_FAILURE( ral_set_dio_irq_params( &( rp->radio->ral ), irq ) == RAL_STATUS_OK );
+@@ -820,6 +853,22 @@ static void smtc_rac_flrc_rx_callback( void* rp_void )
+     SMTC_MODEM_HAL_PANIC_ON_FAILURE( ralf_setup_flrc( rp->radio, &flrc_burst_rp_radio_params.rx.flrc ) ==
+                                      RAL_STATUS_OK );
+ 
++    // FLUSH STALE CHIP IRQ (SuperLexicon 2026-09-05): see the TX launch.
++    // An IRQ pending from an aborted predecessor keeps the DIO line high;
++    // re-arming RX over a high line deafens an edge-triggered host input
++    // until the chip status is finally cleared.
++    {
++        ral_irq_t stale_irq = RAL_IRQ_NONE;
++        if( ral_get_and_clear_irq_status( &( rp->radio->ral ), &stale_irq ) != RAL_STATUS_OK )
++        {
++            SMTC_MODEM_HAL_PANIC( );
++        }
++        if( stale_irq != RAL_IRQ_NONE )
++        {
++            RAC_LOG_INFO( "FLRC-BURST: flushed stale IRQ 0x%04X before RX launch\n", stale_irq );
++        }
++    }
++
+ #if defined( LR20XX )
+     // Disable IF correlator if the frequency offset was measured with à LoRa Rx
+ 
+-- 
+2.55.0
+
