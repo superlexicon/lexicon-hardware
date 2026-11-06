@@ -1,5 +1,7 @@
 # Lexicon Hardware, Radio Firmware & Device Drivers
 
+> 🌐 **Full Interactive Presentation, Hardware Ecosystem & Live Testnet Telemetry: [www.superlexicon.com](https://www.superlexicon.com)**
+
 Unified open-hardware repository containing the radio transceiver firmware, Linux/RT-Smart device drivers, 3D enclosures, and reference hardware designs for the **Lexicon** radio-native blockchain ecosystem.
 
 ---
